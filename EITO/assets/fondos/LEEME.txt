@@ -1,0 +1,9 @@
+FONDOS DEL CARRUSEL
+Cada fondo tiene dos archivos: uno para PC y otro para celular.
+- PC:      nombre-pc.webp     (horizontal, 1280-1600 px de ancho, 40-170 KB)
+- Celular: nombre-movil.webp  (vertical, 576x1024, 15-70 KB)
+Regístralos en js/config.js › backgrounds. Si una imagen es muy clara, usa dim: 0.15.
+Imágenes incluidas:
+- mc-*.webp: capturas oficiales publicadas en minecraft.net (artículos de actualizaciones).
+- minecraft-bosque: tu fondo original.
+- l4d2-* y warzone-*: capturas oficiales de la tienda de Steam.

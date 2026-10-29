@@ -1,0 +1,4 @@
+FUENTE GÓTICA
+Grenze Gotisch (de Omnibus-Type) · licencia SIL Open Font License 1.1 (uso libre en webs).
+Se usa en la barra de navegación y en el nombre "E I T O".
+Para una letra sin adornos en la barra: css/style.css › --nav-font: Inter,system-ui,sans-serif;

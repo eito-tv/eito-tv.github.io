@@ -1,0 +1,4 @@
+RECURSOS DE LEFT 4 DEAD 2
+Copia aquí tus archivos (por ejemplo autoexec.cfg) y escribe su ruta en
+js/config.js › resources › file  →  'assets/recursos/l4d2/autoexec.cfg'
+El botón "Descargar" solo aparece si el archivo existe de verdad.
