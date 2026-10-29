@@ -1,0 +1,66 @@
+E I T O · PÁGINA PERSONAL (versión 7)
+=====================================
+
+ARCHIVOS
+- index.html ............ estructura (barra, perfil, reproductor, Discord, redes, recursos, juegos).
+- css/style.css ......... diseño y animaciones.
+- js/config.js .......... ⭐ AQUÍ CAMBIAS TODO: foto, enlaces, fondos, música, recursos, perfiles.
+- js/app.js ............. funcionamiento (no hace falta tocarlo).
+- js/vendor/qrcode.js ... genera los QR en el navegador (sin servicios externos).
+- assets/ ............... imágenes, logo, audio, fuente e iconos (cada carpeta tiene su LEEME).
+- scripts/ y .github/ ... actualizador automático de cifras (GitHub Actions).
+
+
+CAMBIOS FRECUENTES (todo en js/config.js)
+- Logo del perfil ...... profile.logo (assets/perfil/eito-logo.webp). Va dentro del aro RGB.
+- Enlaces .............. sección links. Los QR se generan solos a partir de estas URL.
+- Fondos ............... sección backgrounds (27 fondos: 22 de Minecraft, 3 de L4D2 y 2 de
+                         Warzone). Cambian cada backgroundSeconds (2 s) con un fundido de
+                         backgroundFade (1.2 s). Para añadir uno: copia nombre-pc.webp y
+                         nombre-movil.webp a assets/fondos/ y agrega una línea.
+- Botones de juegos .... sección games. Los botones bajo tu nombre (solo logotipo) y la
+                         galería usan la MISMA acción: bajan despacio a la tarjeta del juego
+                         y abren su ficha.
+                         Logotipos oficiales en assets/logos-juegos/.
+- Música ............... sección music › tracks. Reproductor propio (sin Spotify).
+                         · file: tu archivo en assets/audio/ (ahora: un FRAGMENTO de 17 s).
+                         · startSeconds: segundo de inicio (ahora 0).
+                         · cover: portada del reproductor (ahora: el logo de EITO).
+                         · title / artist / tag.
+                         Detalles en assets/audio/LEEME.txt. Nunca suena sola al abrir.
+- Clips ................ sección clips (vacía = "Muy pronto"). Ejemplo dentro de config.js.
+- autoexec y recursos .. copia el archivo a assets/recursos/l4d2/ y pon su ruta en
+                         resources › file. El botón "Descargar" solo aparece si existe.
+- Contadores Discord ... effects.counterSeconds (9 s). Cuentan una vez por visita.
+- Estrellas doradas .... effects.goldStars (true/false) y su cantidad.
+- Perfiles de juegos ... sección gameProfiles (Steam, Roblox y Xbox abren su perfil; Epic,
+                         Brawl Stars y PlayStation copian tu nombre o etiqueta). Minecraft,
+                         Warzone y Overwatch muestran "Perfil próximamente" hasta que pongas
+                         su enlace en games › profile.
+- Premios de Steam ..... steamAwardsManual (dato escrito a mano).
+
+
+PUBLICAR (GitHub Pages, Railway u otro servidor de archivos estáticos)
+Es una página estática: no necesita compilar nada. Sube TODO el contenido de esta carpeta
+(incluida la carpeta oculta ".github" si usas GitHub). El servidor debe permitir saltar
+dentro del audio (peticiones "Range"); GitHub Pages y los servidores normales lo hacen.
+(No se ha publicado nada todavía.)
+
+
+CONTADORES DE SEGUIDORES
+Discord funciona solo (en vivo, sin claves). El resto lo consulta GitHub cada 15 minutos
+y lo guarda en la rama "estadisticas" (stats.json). Nunca se inventan cifras.
+
+Paso 1 · Settings › Actions › General › Workflow permissions › "Read and write permissions".
+Paso 2 · Pestaña Actions › "Actualizar estadisticas" › Run workflow.
+Paso 3 · Settings › Secrets and variables › Actions › New repository secret:
+  YOUTUBE_API_KEY ........ console.cloud.google.com › YouTube Data API v3 › Clave de API.
+  TWITCH_CLIENT_ID / TWITCH_CLIENT_SECRET ... dev.twitch.tv/console › Register Your Application.
+  STEAM_API_KEY .......... steamcommunity.com/dev/apikey (amigos: requiere lista de amigos pública).
+  Opcionales: TIKTOK_CLIENT_KEY, TIKTOK_CLIENT_SECRET, TIKTOK_REFRESH_TOKEN,
+  INSTAGRAM_TOKEN, OPENXBL_API_KEY, GH_PAT (para renovar tokens de TikTok/Instagram).
+  Para obtener los tokens de TikTok e Instagram: python scripts/obtener_tokens.py tiktok | instagram
+
+Sin fuente gratuita y fiable: seguidores de PlayStation y de Xbox (Xbox muestra
+Gamerscore si configuras OpenXBL), premios de Steam (dato manual).
+Nunca pongas claves en config.js ni en otro archivo público: van solo en "Secrets".
