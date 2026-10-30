@@ -1,0 +1,135 @@
+/* =========================================================
+   EITO · ADAPTACIÓN (celular, tableta) Y MOVIMIENTO REDUCIDO
+   Se carga al final para que sus reglas manden.
+   ========================================================= */
+/* ---------- 12. Adaptación ---------- */
+@media (max-width:1060px){
+  .layout{grid-template-columns:1fr}
+  .side{grid-template-columns:1fr 1fr;padding-top:0}
+  .game-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:700px){
+  :root{--nav-h:52px;--content:calc(100% - 22px);--radius:15px}
+  .topnav{top:6px;width:calc(100% - 12px);padding:0 10px}
+  .brand img{height:30px}
+  .nav-links{gap:0}
+  .nav-links a{padding:8px 7px;font-size:16px;letter-spacing:.3px}
+  .nav-links a::after{left:7px;right:7px}
+  .page{padding-top:calc(var(--nav-h) + 18px)}
+  .bg-shade{background:
+    radial-gradient(130% 100% at 50% 25%,transparent 40%,rgba(3,5,10,.55) 100%),
+    linear-gradient(180deg,rgba(3,5,10,.32) 0%,rgba(3,5,10,.45) 35%,rgba(3,5,10,.7) 70%,rgba(3,5,10,.86) 100%)}
+  .avatar-wrap{width:142px;height:142px;margin:22px auto 26px}
+  .viz{width:250px;height:250px}
+  h1{font-size:60px;letter-spacing:7px;text-indent:7px}
+  .subtitle{font-size:14.5px}
+  .game-chips{gap:6px;margin-top:12px}
+  .game-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;padding:0 2px}
+  .game-chips li{width:calc(25% - 6px)}
+  .game-chip{width:100%;height:52px;padding:7px 6px;border-radius:12px}
+  .chip-logo img{max-width:calc(100% - 4px);max-height:32px}
+  .center-stack{margin-top:16px;gap:10px}
+  /* Celular: portada + datos arriba; abajo, centrados, ↺ · REPRODUCIR · volumen. */
+  .player{grid-template-columns:72px minmax(0,1fr);grid-template-areas:"cover body" "ctl ctl";gap:10px 12px;padding:12px 12px 14px}
+  .cover{width:72px;height:72px}
+  .controls{gap:10px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07);margin-top:2px}
+  .ctl-btn{width:44px;height:44px}
+  .play-btn{width:62px;height:62px}
+  .play-btn svg{width:28px;height:28px}
+  .vol-track{width:82px}
+  .track b{font-size:15.5px}
+  .gd-card{grid-template-columns:1fr;gap:12px}
+  .hub-row{grid-template-columns:1fr}
+  .hub-stats{padding:10px}
+  .hub-stat b{font-size:20px}
+  .join-btn{min-height:54px;font-size:14px}
+  .layout{margin-top:22px;gap:16px}
+  .social-grid{grid-template-columns:1fr;gap:10px}
+  .sc-head{min-height:76px;padding:12px 14px;grid-template-columns:50px minmax(0,1fr) 20px;gap:10px}
+  .has-stat .sc-head{grid-template-columns:50px minmax(0,1fr) auto 18px}
+  .sc-stat{max-width:96px}
+  .sc-stat b{font-size:17px}
+  .sc-stat small{font-size:10px}
+  .sc-num{gap:4px}
+  .sc-sym{width:11px;height:11px}
+  .sc-icon{width:50px;height:50px}
+  .qr-act{grid-template-columns:112px minmax(0,1fr);gap:12px}
+  .qr-box svg,.qr-fail{width:112px;height:112px}
+  .side{grid-template-columns:1fr}
+  .game-strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;padding-bottom:6px;margin:0 -11px;padding-inline:11px;scrollbar-width:none}
+  .game-strip::-webkit-scrollbar{display:none}
+  .game-tile{flex:0 0 42%;scroll-snap-align:start}
+  .join-btn::before{animation-duration:12s}
+  .social-card:hover{transform:none}
+  /* En táctil, el borde de marca aparece al tocar (sin depender del cursor). */
+  .social-card:active::before{opacity:1}
+  /* v12 · Descubrir lo de abajo: separación clara y títulos fáciles de ver. */
+  .layout{margin-top:30px;gap:28px}
+  .main-col{gap:28px}
+  .side{gap:22px}
+  .games-section{margin-top:32px}
+  .section-title{font-size:13px;letter-spacing:2.2px;margin-bottom:14px}
+  .section-title span{padding:5px 11px;border-radius:20px;background:rgba(8,10,18,.6);border:1px solid rgba(255,255,255,.1)}
+  .scroll-hint{display:flex;animation:fade-in .8s ease-out 2.4s backwards}
+  .scroll-hint svg{animation:hint-bob 1.6s ease-in-out infinite}
+  .clip-empty{grid-template-columns:96px minmax(0,1fr);gap:12px;padding:12px}
+}
+/* Tableta y celular: una sola columna; los clips se mueven después de los juegos (JS). */
+@media (max-width:1060px){
+  .main-col .clips-section{margin-top:0}
+}
+@media (max-width:380px){
+  .vol-track{width:70px}
+  .controls{gap:6px}
+}
+@media (max-width:350px){
+  .qr-act{grid-template-columns:1fr}
+  .nav-links a{padding:8px 5px;font-size:14.5px}
+}
+@media (hover:none){
+  .social-card:hover::before{opacity:0}
+  .social-card.open::before,.social-card:active::before{opacity:1;animation-play-state:running}
+}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion:reduce){
+  /* El aro sigue girando (más calmado): su velocidad la pone config.js › ringSecondsReduced. */
+  .nav-links a.active,.nav-links a::after,.player::before,.music-on .cover-glow{animation:none}
+  .emerald,.sheen-once::after,.open .act::after,.act:hover::after{animation:none}
+  .enter,.social-card,.game-chip,.game-tile{animation-duration:.25s;animation-delay:0ms}
+  @keyframes rise{from{opacity:0}to{opacity:1}}
+  /* v12: entradas solo con fundido corto (sin desplazamientos); el aro conserva su giro. */
+  @keyframes from-right{from{opacity:0}to{opacity:1}}
+  @keyframes rise-sm{from{opacity:0}to{opacity:1}}
+  .rgb-ring,.ring-glow{animation:spin var(--ring-time,1.5s) linear infinite}
+  .avatar,.player.enter .cover,.player.enter .player-body,.player.enter .controls{animation:fade-in .25s ease-out backwards}
+  .scroll-hint svg{animation:none}
+  .reveal{opacity:1;transform:none}
+  .seek-rgb,.vol-rgb{animation-duration:14s}   /* la barra RGB sigue fluyendo, más calmada (como el aro) */
+  .bg-layer{transform:none}
+  .bg-layer.on{animation:bg-in var(--bg-fade,1.2s) ease-in-out both}
+  .join-btn::before,.live-dot,.music-on .cover-glow{animation:none}
+  .social-card::before{animation:none}
+  .game-chips.lights li::before,.hub-live i::after,.live-dot::after,.emerald::after{animation:none}
+  :root{--btn-rgb-time:8s}   /* el RGB del botón y del volumen sigue girando, más calmado */
+  .flash{animation-duration:1s}
+  /* Nuevas animaciones: con movimiento reducido quedan quietas (los colores RGB se ven, sin moverse). */
+  h1#profileName.enter{animation:fade-in .25s ease-out backwards}
+  .music-on .eq{animation:none}
+  /* v11: entrada solo con fundido corto; los destellos de la barra se conservan (son luz, no movimiento). */
+  .backdrop,.gold-stars{animation-duration:.4s;animation-delay:0ms}
+  #comunidad .hub-stats,#comunidad .join-btn{animation-duration:.25s;animation-delay:0ms}
+  @keyframes xmas{0%,100%{opacity:0}30%{opacity:1}}
+  .expand,.open > .expand{transition-duration:.15s}
+}
+
+/* ---------- Modo ligero ----------
+   js/app.js añade .lite en navegadores integrados (Instagram, TikTok, Facebook), con "ahorro de
+   datos" o en equipos modestos. Mismo diseño, menos trabajo para la tarjeta gráfica:
+   sin acercamiento continuo del fondo, desenfoques más pequeños y sin brillos que repintan. */
+.lite .bg-layer.on{animation:bg-in var(--bg-fade,1.2s) ease-in-out both}
+.lite .ring-glow{filter:blur(10px)}
+.lite .play-glow{filter:blur(6px)}
+.lite .cover-glow{filter:none;opacity:.25}
+.lite .music-on .eq,.lite .emerald,.lite .emerald::after{animation:none}
+.lite h1#profileName{filter:drop-shadow(0 3px 0 #000)}

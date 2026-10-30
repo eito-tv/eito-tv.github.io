@@ -214,8 +214,8 @@
     /* ---------- Animaciones ---------- */
     effects: {
       goldStars: true,       // estrellas doradas de cuatro puntas (entre el fondo y el contenido)
-      maxStarsDesktop: 26,
-      maxStarsMobile: 12,
+      maxStarsDesktop: 34,   // v12: +30 %
+      maxStarsMobile: 16,
       counterSeconds: 15,    // duración del conteo de Discord (de 0 a la cifra real, en cada carga)
       ringSeconds: 1.5,      // una vuelta del aro RGB del logo (celular y computadora)
       ringSecondsReduced: 3  // la misma vuelta si el sistema pide "reducir animaciones" (más calmado, pero gira)

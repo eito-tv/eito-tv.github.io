@@ -16,10 +16,19 @@
   <link rel="preload" as="image" href="assets/fondos/mc-bosque-luz-movil.webp" media="(max-width: 700px)">
   <link rel="preload" as="image" href="assets/perfil/eito-logo.webp" fetchpriority="high">
   <link rel="preconnect" href="https://discord.com" crossorigin>
-  <link rel="stylesheet" href="css/style.css?v=11">
-  <script src="js/config.js?v=11" defer></script>
-  <script src="js/vendor/qrcode.js?v=11" defer></script>
-  <script src="js/app.js?v=11" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/animaciones.css?v=12">
+  <link rel="stylesheet" href="css/responsive.css?v=12">
+  <script src="js/config.js?v=12" defer></script>
+  <script src="js/vendor/qrcode.js?v=12" defer></script>
+  <script src="js/nucleo.js?v=12" defer></script>
+  <script src="js/contenido.js?v=12" defer></script>
+  <script src="js/navegacion.js?v=12" defer></script>
+  <script src="js/discord.js?v=12" defer></script>
+  <script src="js/estrellas.js?v=12" defer></script>
+  <script src="js/espectro.js?v=12" defer></script>
+  <script src="js/reproductor.js?v=12" defer></script>
+  <script src="js/app.js?v=12" defer></script>
 </head>
 <body>
   <!-- Fondos (carrusel), estrellas y partículas de música -->
@@ -32,7 +41,7 @@
   <canvas class="gold-stars" id="goldStars" aria-hidden="true"></canvas>
 
   <!-- Barra de navegación -->
-  <nav class="topnav enter" style="--d:250ms" aria-label="Secciones">
+  <nav class="topnav enter" style="--d:150ms" aria-label="Secciones">
     <a class="brand" href="#inicio" data-nav="inicio" aria-label="EITO · Inicio"><img src="assets/perfil/eito-logo-mini.png" alt="EITO" width="72" height="49"></a>
     <div class="nav-links">
       <a href="#inicio" data-nav="inicio">Inicio</a>
@@ -45,20 +54,20 @@
   <main class="page">
     <!-- Perfil -->
     <header class="hero" id="inicio">
-      <div class="avatar-wrap enter" style="--d:450ms" id="avatarWrap">
+      <div class="avatar-wrap" id="avatarWrap">
         <canvas class="viz" id="vizCanvas" aria-hidden="true"></canvas>
         <div class="ring-glow" aria-hidden="true"></div>
         <div class="rgb-ring" aria-hidden="true"></div>
         <div class="avatar"><img id="avatarImg" src="assets/perfil/eito-logo.webp" alt="Logo de EITO" width="900" height="617" fetchpriority="high" decoding="async"></div>
       </div>
-      <h1 class="enter" style="--d:650ms" id="profileName" aria-label="EITO">E I T O</h1>
-      <p class="subtitle enter" style="--d:740ms" id="profileSubtitle">Página hecha por mí</p>
+      <h1 class="enter" style="--d:750ms" id="profileName" aria-label="EITO">E I T O</h1>
+      <p class="subtitle enter" style="--d:850ms" id="profileSubtitle">Página hecha por mí</p>
       <ul class="game-chips" id="gameChips" aria-label="Mis juegos"></ul>
     </header>
 
     <div class="center-stack">
       <!-- Reproductor propio (archivo local, HTML5 Audio, en bucle) -->
-      <section class="player panel enter" style="--d:1250ms" id="player" aria-label="Reproductor de música" data-state="idle">
+      <section class="player panel enter" style="--d:1150ms" id="player" aria-label="Reproductor de música" data-state="idle">
         <div class="cover" id="playerCover">
           <span class="cover-art" id="coverArt" role="img" aria-label="Portada"></span><span class="cover-glow" aria-hidden="true"></span>
         </div>
@@ -84,8 +93,10 @@
           <p class="player-msg" id="playerMsg" role="status" aria-live="polite"></p>
         </div>
         <div class="controls">
-          <button class="ctl-btn pressable" id="prevBtn" type="button" aria-label="Canción anterior" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM9.5 12 19 5.5v13z"/></svg></button>
+          <div class="ctl-side ctl-left">
           <button class="ctl-btn pressable" id="restartBtn" type="button" aria-label="Volver al segundo de inicio" title="Volver al inicio" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6l5 4V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z"/></svg></button>
+          <button class="ctl-btn pressable" id="prevBtn" type="button" aria-label="Canción anterior" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM9.5 12 19 5.5v13z"/></svg></button>
+          </div>
           <span class="play-wrap"><span class="play-glow" aria-hidden="true"></span>
           <button class="play-btn pressable" id="playBtn" type="button" aria-label="Reproducir" aria-pressed="false">
             <span class="play-ring" aria-hidden="true"></span>
@@ -93,8 +104,10 @@
             <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
             <span class="spinner" aria-hidden="true"></span>
           </button></span>
+          <div class="ctl-side ctl-right">
           <button class="ctl-btn pressable" id="nextBtn" type="button" aria-label="Canción siguiente" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM14.5 12 5 18.5v-13z"/></svg></button>
           <label class="vol-row" id="volWrap" title="Volumen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="vol-waves" d="M16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="vol-track"><span class="vol-bar" aria-hidden="true"><span class="vol-fill"><span class="vol-rgb"></span></span></span><input type="range" id="vol" min="0" max="100" step="1" value="50" aria-label="Volumen"></span></label>
+          </div>
         </div>
         <audio id="audio" preload="none"></audio>
       </section>
@@ -115,7 +128,10 @@
               <div><b id="hubOnline">—</b><span>En línea</span></div>
             </div>
             </div>
-            <p class="hub-live" id="hubLive" data-state="loading" role="status" aria-live="polite"><i aria-hidden="true"></i><span>Conectando con Discord…</span></p>
+            <div class="hub-live-row">
+              <p class="hub-live" id="hubLive" data-state="loading" role="status" aria-live="polite"><i aria-hidden="true"></i><span>Conectando con Discord…</span></p>
+              <button class="hub-refresh" id="hubRefresh" type="button" aria-label="Actualizar cifras de Discord" title="Actualizar cifras de Discord"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 3.8v4.6h-4.6"/></svg></button>
+            </div>
           </div>
           <button class="join-btn pressable sheen-once" id="joinBtn" type="button" aria-expanded="false" aria-controls="joinPanel">
             <img src="assets/discord.svg" alt="" width="26" height="26"><span>ÚNETE AL SERVIDOR</span><i class="chev" aria-hidden="true">›</i>
@@ -127,17 +143,26 @@
     </div>
 
     <div class="layout">
+      <div class="main-col" id="mainCol">
       <!-- Redes -->
-      <section class="section enter" style="--d:1750ms" id="redes" aria-labelledby="t-redes">
+      <section class="section enter" style="--d:1600ms" id="redes" aria-labelledby="t-redes">
         <div class="section-title"><span id="t-redes">MIS REDES</span><i></i></div>
         <div class="social-grid" id="socialGrid">
           <noscript><p class="panel noscript">Activa JavaScript para ver mis redes. Discord: https://discord.gg/ReUtMYvgrx</p></noscript>
         </div>
       </section>
 
+      <!-- Clips: en computadora ocupa el espacio libre bajo las redes; en celular va después
+           de los juegos (lo mueve js/contenido.js). Se llena desde js/config.js › clips. -->
+      <section class="section clips-section enter" style="--d:1750ms" id="clips" aria-labelledby="t-clips">
+        <div class="section-title"><span id="t-clips">MIS CLIPS</span><i></i></div>
+        <div class="clip-grid" id="clipGrid"></div>
+      </section>
+      </div>
+
       <aside class="side">
         <!-- Recursos -->
-        <section class="side-card panel enter" style="--d:2150ms" id="recursos" aria-labelledby="t-recursos">
+        <section class="side-card panel enter" style="--d:1800ms" id="recursos" aria-labelledby="t-recursos">
           <div class="side-head l4d2">
             <span class="side-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/></svg></span>
             <div><h2 id="t-recursos">RECURSOS · LEFT 4 DEAD 2</h2><p>Autoexec · Mods · Configuraciones · Guías</p></div>
@@ -147,7 +172,7 @@
         </section>
 
         <!-- Perfiles de juegos -->
-        <section class="side-card panel enter" style="--d:2250ms" id="perfiles" aria-labelledby="t-perfiles">
+        <section class="side-card panel enter" style="--d:1900ms" id="perfiles" aria-labelledby="t-perfiles">
           <div class="side-head">
             <span class="side-ico gp" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 8h10a5 5 0 0 1 4.8 6.4l-.9 3.1a2.2 2.2 0 0 1-3.7.9L14.5 16h-5l-2.7 2.4a2.2 2.2 0 0 1-3.7-.9l-.9-3.1A5 5 0 0 1 7 8zm1 2.5v1.5H6.5v1.5H8V15h1.5v-1.5H11V12H9.5v-1.5zm8 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/></svg></span>
             <div><h2 id="t-perfiles">MIS PERFILES DE JUEGOS</h2><p>Encuéntrame jugando</p></div>
@@ -158,20 +183,17 @@
     </div>
 
     <!-- Juegos -->
-    <section class="section games-section enter" style="--d:2350ms" id="juegos" aria-labelledby="t-juegos">
+    <section class="section games-section enter" style="--d:2000ms" id="juegos" aria-labelledby="t-juegos">
       <div class="section-title"><span id="t-juegos">MIS JUEGOS FAVORITOS</span><i></i></div>
       <div class="game-strip" id="gameGrid"></div>
       <div class="game-detail expand" id="gameDetail" aria-live="polite"><div class="expand-inner"></div></div>
     </section>
 
-    <!-- Clips (preparada; se llena desde js/config.js › clips) -->
-    <section class="section clips-section enter" style="--d:2450ms" id="clips" aria-labelledby="t-clips">
-      <div class="section-title"><span id="t-clips">MIS CLIPS</span><i></i></div>
-      <div class="clip-grid" id="clipGrid"></div>
-    </section>
-
     <footer>E I T O · PÁGINA HECHA POR MÍ<br><small>Imágenes de juegos: capturas y arte promocional oficial de sus respectivos dueños.</small><p class="bg-caption" id="bgCaption"></p></footer>
   </main>
+
+  <!-- Celular: invitación discreta a deslizar (desaparece al desplazarse) -->
+  <button class="scroll-hint" id="scrollHint" type="button" aria-label="Desliza para ver mis redes y más contenido"><span>Desliza</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg></button>
 
   <div class="site-toast" id="siteToast" role="status" aria-live="polite"></div>
 </body>
