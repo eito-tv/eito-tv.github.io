@@ -163,8 +163,9 @@
     const api = {
       root,
       isOpen: () => root.classList.contains('open'),
+      prebuild() { if (!built) { inner.innerHTML = build(); built = true; } },
       set(open) {
-        if (open && !built) { inner.innerHTML = build(); built = true; }
+        if (open) api.prebuild();
         root.classList.toggle('open', open);
         trigger.setAttribute('aria-expanded', String(open));
         panel.inert = !open;
@@ -183,6 +184,17 @@
     });
     expanders.push(api);
     return api;
+  }
+  /* Rendimiento: los paneles (QR incluido) se preparan de uno en uno cuando el
+     navegador está libre, así abrirlos después no provoca tirones. */
+  const idle = window.requestIdleCallback ? (fn => requestIdleCallback(fn, { timeout: 2000 })) : (fn => setTimeout(() => fn(null), 120));
+  function prebuildPanels() {
+    const queue = expanders.slice();
+    const work = deadline => {
+      do { const x = queue.shift(); if (x) x.prebuild(); } while (queue.length && deadline && deadline.timeRemaining() > 6);
+      if (queue.length) idle(work);
+    };
+    idle(work);
   }
   // Cerrar con Escape o tocando fuera de la tarjeta abierta.
   document.addEventListener('keydown', e => {
@@ -217,8 +229,10 @@
      FONDOS: carrusel con fundido cruzado (cada ~2 s)
      - La imagen nueva aparece ENCIMA de la anterior, que sigue visible
        debajo hasta terminar el fundido: nunca hay pantalla negra.
-     - Solo se precarga la siguiente imagen; nunca se descargan todas.
-     - Solo existen 2 capas en pantalla, así la memoria se mantiene baja.
+     - Rendimiento: cada imagen se descarga y DECODIFICA antes de mostrarse, y se
+       usa ese mismo <img> ya decodificado (antes se ponía como background-image y
+       el navegador podía volver a decodificarla justo al pintar → tirón).
+     - Solo se prepara la siguiente; nunca se descargan todas. Solo hay 2 capas.
      ========================================================= */
   function startBackgrounds() {
     const list = (CFG.backgrounds || []).filter(b => b && b.desktop);
@@ -232,31 +246,31 @@
     let idx = -1, front = 1, timer = null, nextReady = null;
     const srcOf = item => (SMALL.matches && item.mobile ? item.mobile : item.desktop);
 
-    // Descarga y decodifica una imagen ANTES de mostrarla (evita tirones).
     function load(i) {
       const item = list[i];
       const img = new Image();
       img.decoding = 'async';
+      img.alt = '';
+      img.draggable = false;
       img.src = srcOf(item);
       const ready = img.decode ? img.decode() : new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
-      return ready.then(() => ({ i, item, src: img.src }), () => { bad.add(i); throw new Error('img'); });
+      return ready.then(() => ({ i, item, img }), () => { bad.add(i); throw new Error('img'); });
     }
     function nextIndex(from) {
       for (let k = 1; k <= list.length; k++) { const j = (from + k) % list.length; if (!bad.has(j)) return j; }
       return -1;
     }
-    function swap({ i, item, src }) {
+    function swap({ i, item, img }) {
       const top = layers[1 - front], under = layers[front];
       top.classList.remove('on', 'under');
-      top.style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`;
       top.style.setProperty('--dim', String(Math.min(0.4, Math.max(0, Number(item.dim) || 0))));
-      void top.offsetWidth;                       // reinicia la transición
+      top.replaceChildren(img);                   // la imagen ya decodificada
+      void top.offsetWidth;                       // reinicia la animación del fundido
       under.classList.remove('on'); under.classList.add('under');
       top.classList.add('on');
       front = 1 - front; idx = i;
       const cap = $('#bgCaption');
       if (cap) cap.textContent = item.game ? `Fondo actual: ${item.game}` : '';
-      // Prepara la siguiente mientras esta se ve.
       const n = nextIndex(idx);
       nextReady = n >= 0 && n !== idx ? load(n).catch(() => null) : null;
       schedule();
@@ -264,17 +278,15 @@
     function schedule() {
       clearTimeout(timer);
       if (document.hidden || !nextReady) return;
-      const due = Date.now() + seconds * 1000;
       timer = setTimeout(() => {
         const p = nextReady; nextReady = null;
         p.then(r => {
           if (r) swap(r);
           else { const n = nextIndex(idx); if (n >= 0) { nextReady = load(n).catch(() => null); schedule(); } }
         });
-      }, Math.max(0, due - Date.now()));
+      }, seconds * 1000);
     }
     document.addEventListener('visibilitychange', () => { if (document.hidden) clearTimeout(timer); else if (!nextReady) { const n = nextIndex(idx); if (n >= 0) nextReady = load(n).catch(() => null); schedule(); } else schedule(); });
-    // Primera imagen
     (function first(k) {
       if (k >= list.length) return;
       load(k).then(swap, () => first(k + 1));
@@ -284,32 +296,41 @@
   /* =========================================================
      NAVEGACIÓN con resaltado del destino
      ========================================================= */
-  // Qué se resalta al llegar a cada sección desde la barra.
+  // Qué se resalta al llegar a cada sección desde la barra (se repite en cada pulsación).
   const NAV_EFFECTS = {
     inicio: () => pulseBlock('#inicio', 'glow-hero'),
-    recursos: () => { pulseBlock('#recursos', 'glow-block'); flash('.res-tile'); },
-    juegos: () => flash('.game-tile'),
-    comunidad: () => {
-      pulseBlock('#comunidad', 'glow-block');
-      $$('.hub-stat').forEach(el => pulseBlock(el, 'bump'));
-      pulseBlock('#joinBtn', 'attention');
-    }
+    // Recursos: los botones se iluminan uno después de otro (nunca todos a la vez).
+    recursos: () => flash('#recursos .res-tile, #recursos .guide-chip', { cls: 'seq-flash', step: 140 }),
+    // Juegos: los botones de juegos se encienden del primero al último con el color de cada juego.
+    juegos: () => lightUpChips({ nav: true }),
+    // Comunidad: solo el botón "Únete al servidor".
+    comunidad: () => pulseBlock('#joinBtn', 'join-glow')
   };
+  // Inicio: vuelve a la vista inicial sin recargar ni tocar la música
+  // (cierra la ficha del juego y los paneles abiertos y regresa la galería al principio).
+  function resetView() {
+    if (selectedGame) selectGame(selectedGame, { scroll: false });
+    expanders.forEach(x => x.isOpen() && x.set(false));
+    const strip = $('#gameGrid');
+    if (strip && strip.scrollLeft) strip.scrollTo({ left: 0, behavior: REDUCED.matches ? 'auto' : 'smooth' });
+  }
   function pulseBlock(target, cls) {
     const el = typeof target === 'string' ? $(target) : target;
     if (!el) return;
     el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
-    setTimeout(() => el.classList.remove(cls), 2200);
+    clearTimeout(el._pulseT);   // si se pulsa otra vez, el temporizador viejo no corta la animación nueva
+    el._pulseT = setTimeout(() => el.classList.remove(cls), 2200);
   }
-  function flash(selector) {
-    $$(selector).forEach((el, i) => {
-      el.classList.remove('flash');
-      void el.offsetWidth; // reinicia la animación
-      el.style.setProperty('--fd', `${Math.min(i, 8) * 90}ms`);
-      el.classList.add('flash');
+  function flash(selector, { cls = 'flash', step = 90 } = {}) {
+    const els = $$(selector);
+    els.forEach(el => el.classList.remove(cls));
+    void document.body.offsetWidth; // reinicia la animación (una sola vez para todos)
+    els.forEach((el, i) => {
+      el.style.setProperty('--fd', `${Math.min(i, 12) * step}ms`);
+      el.classList.add(cls);
       el.addEventListener('animationend', function done(ev) {
-        if (ev.animationName !== 'flash') return;
-        el.classList.remove('flash'); el.removeEventListener('animationend', done);
+        if (ev.target !== el) return;
+        el.classList.remove(cls); el.removeEventListener('animationend', done);
       });
     });
   }
@@ -344,11 +365,17 @@
     const links = $$('[data-nav]');
     links.forEach(a => a.addEventListener('click', e => {
       const key = a.dataset.nav;
-      const target = document.getElementById(key);
+      // "Juegos" lleva a los botones de juegos (bajo mi nombre), que son los que se iluminan.
+      const chips = key === 'juegos' ? $('#gameChips') : null;
+      const target = chips || document.getElementById(key);
       if (!target) return;
       e.preventDefault();
+      if (key === 'inicio') resetView();
       // La barra es fija: se deja su altura + un margen para que no tape el título.
-      const top = key === 'inicio' ? 0 : target.getBoundingClientRect().top + window.scrollY - navOffset();
+      const r = target.getBoundingClientRect();
+      const top = key === 'inicio' ? 0
+        : chips ? Math.min(r.top + window.scrollY - navOffset(), r.top + window.scrollY - (window.innerHeight - r.height) / 2)
+        : r.top + window.scrollY - navOffset();
       navLock = Date.now() + 2000;   // mientras se desplaza, queda marcada la opción pulsada
       glideTo(top, () => { navLock = Date.now() + 250; (NAV_EFFECTS[key] || (() => {}))(); });
       history.replaceState(null, '', key === 'inicio' ? location.pathname : `#${key}`);
@@ -402,15 +429,62 @@
   /* =========================================================
      TARJETAS DE REDES
      ========================================================= */
-  const statSlots = {}; // id -> elemento donde van las cifras
+  let discordCardStat = null;   // la tarjeta de Discord muestra los miembros en vivo
+  // Símbolos de las cifras: vectoriales, de un solo color (currentColor), nunca emojis del teléfono.
+  const STAT_ICON = {
+    like: '<path d="M12 20.6 4.5 13.3A4.9 4.9 0 0 1 12 6.8a4.9 4.9 0 0 1 7.5 6.5z"/>',
+    star: '<path d="m12 2.6 2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.2l-5.8 3.2 1.2-6.5-4.8-4.5 6.5-.8z"/>',
+    person: '<circle cx="12" cy="7.8" r="4.3"/><path d="M3.8 21c.6-4.6 3.9-7.2 8.2-7.2s7.6 2.6 8.2 7.2z"/>',
+    members: '<circle cx="9" cy="8" r="3.4"/><path d="M2.8 19.5c.6-3.6 3.1-5.6 6.2-5.6s5.6 2 6.2 5.6z"/><circle cx="17.2" cy="9" r="2.7"/><path d="M16.2 13.9c2.8-.2 4.9 1.4 5.4 4.8h-4.4c-.2-1.9-.5-3.4-1-4.8z"/>',
+    award: '<circle cx="12" cy="9" r="6.2"/><path d="M8.3 14.2 6.8 22l5.2-2.7 5.2 2.7-1.5-7.8a7.7 7.7 0 0 1-7.4 0z"/>',
+    medal: '<path d="M6.6 2h4.2l2.3 5.6a8 8 0 0 0-3 .9zM17.4 2h-4.2l-.8 2 1.7 4.2a8 8 0 0 1 1.9.9z"/><circle cx="12" cy="15.6" r="6"/>',
+    trophy: '<path d="M7 2.8h10v1.7h3.4v2.8a4.4 4.4 0 0 1-4.1 4.4 5.1 5.1 0 0 1-3.1 2.9v2.6h3.1v3.2H7.7v-3.2h3.1v-2.6a5.1 5.1 0 0 1-3.1-2.9 4.4 4.4 0 0 1-4.1-4.4V4.5H7zM5.6 6.4v.9c0 .9.6 1.7 1.4 2zm12.8 0-1.4 2.9c.8-.3 1.4-1.1 1.4-2z"/>'
+  };
+  const statIcon = k => (STAT_ICON[k] ? `<svg class="sc-sym" viewBox="0 0 24 24" aria-hidden="true">${STAT_ICON[k]}</svg>` : '');
+  function statMarkup(st) {
+    if (!st) return '';
+    if (st.live === 'discord') return `<span class="sc-stat live" title="Miembros del servidor (en vivo desde Discord)"><span class="sc-num">${statIcon(st.icon)}<b data-live="discord">—</b></span><small>${esc(st.label || 'miembros')}</small></span>`;
+    // Solo símbolo (sin cifra): no se inventa ningún número.
+    if (st.value == null || st.value === '') return st.icon ? `<span class="sc-stat sym-only" title="${esc(st.title || '')}"><span class="sc-num">${statIcon(st.icon)}</span>${st.label ? `<small>${esc(st.label)}</small>` : ''}</span>` : '';
+    return `<span class="sc-stat" title="${esc(st.title || `${st.value} ${st.label || ''}`)}"><span class="sc-num">${statIcon(st.icon)}<b data-count="${esc(st.value)}">${esc(st.value)}</b></span>${st.label ? `<small>${esc(st.label)}</small>` : ''}</span>`;
+  }
+  // Cifras fijas de las tarjetas: suben de 0 a su valor cuando la tarjeta entra en pantalla (una vez).
+  // "600 mil" → número 600 + " mil"; "1,200" conserva la coma. Discord no pasa por aquí (va en vivo).
+  function countUpStats(grid) {
+    const els = $$('[data-count]', grid).map(el => {
+      const m = /^(\d[\d,.]*)(.*)$/.exec(el.dataset.count.trim());
+      return m && { el, n: Number(m[1].replace(/[,.]/g, '')), sep: /,/.test(m[1]), rest: m[2] };
+    }).filter(x => x && x.n > 0);
+    if (!els.length || REDUCED.matches || !('IntersectionObserver' in window)) return;
+    const fmt = (x, v) => (x.sep ? v.toLocaleString('en-US') : String(v)) + x.rest;
+    els.forEach(x => { x.el.textContent = fmt(x, 0); });
+    const run = (x, delay) => {
+      const dur = 1600; let t0 = 0;
+      const step = now => {
+        if (!t0) t0 = now + delay;
+        const p = Math.min(1, Math.max(0, (now - t0) / dur));
+        x.el.textContent = fmt(x, Math.round(x.n * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) requestAnimationFrame(step); else x.el.classList.add('counted');
+      };
+      requestAnimationFrame(step);
+    };
+    let k = 0;
+    const io = new IntersectionObserver(entries => entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      const x = els.find(v => v.el === e.target);
+      if (x) run(x, (k++ % 6) * 110);
+    }), { threshold: 0.6 });
+    els.forEach(x => io.observe(x.el));
+  }
   function renderSocials() {
     const grid = $('#socialGrid');
     if (!grid) return;
     const frag = document.createDocumentFragment();
     (CFG.socials || []).forEach((s, i) => {
-      const url = LINKS[s.urlKey || s.id] || '';
+      const url = (s.id === 'github' && LINKS.githubAutoexec) || LINKS[s.urlKey || s.id] || '';
       const card = document.createElement('article');
-      card.className = `social-card ${s.id}`;
+      card.className = `social-card ${s.id}${s.stat ? ' has-stat' : ''}`;
       card.style.setProperty('--i', i);
       card.innerHTML = `
         <button class="sc-head" type="button" aria-expanded="false" aria-controls="panel-${s.id}" data-tap>
@@ -418,8 +492,8 @@
           <span class="sc-text">
             <span class="sc-name">${esc(s.name)}</span>
             <span class="sc-user">${esc(s.user)}</span>
-            <span class="sc-stats"${s.noStats ? '' : ' hidden'}>${s.noStats ? `<span class="stat-msg">${esc(s.noStats)}</span>` : ''}</span>
           </span>
+          ${statMarkup(s.stat)}
           <span class="chev" aria-hidden="true">›</span>
         </button>
         <div class="expand" id="panel-${s.id}"><div class="expand-inner"></div></div>`;
@@ -429,10 +503,11 @@
           <div class="acts">${actionsMarkup({ url, app: s.app, steamClient: s.steamClient, copy: s.copy })}</div>
         </div>
         ${s.note ? `<p class="note">${esc(s.note)}</p>` : ''}`);
-      if (!s.noStats) statSlots[s.id] = $('.sc-stats', card);
+      if (s.stat && s.stat.live === 'discord') discordCardStat = $('[data-live="discord"]', card);
       frag.appendChild(card);
     });
     grid.replaceChildren(frag);
+    countUpStats(grid);
   }
 
   /* =========================================================
@@ -542,12 +617,39 @@
     } else glow();
   }
 
+  /* Luces: los botones de juegos se encienden UNO POR UNO (izquierda → derecha,
+     arriba → abajo) con el color propio de cada juego. Al cargar, una vez (no con
+     "reducir movimiento"); desde la barra "Juegos", cada vez que se pulsa.
+     Solo se anima opacidad y escala de una capa de luz (sin tirones). */
+  let lightsT = 0;
+  function lightUpChips({ nav = false } = {}) {
+    const list = $('#gameChips');
+    if (!list || (!nav && REDUCED.matches)) return;
+    const items = $$('li', list);
+    // Orden visual real (por filas y luego por columnas), sirve en PC y en celular.
+    const ordered = items.map(li => ({ li, r: li.getBoundingClientRect() }))
+      .sort((a, b) => (Math.abs(a.r.top - b.r.top) > 8 ? a.r.top - b.r.top : a.r.left - b.r.left));
+    ordered.forEach(({ li }, k) => {
+      const chip = $('.game-chip', li);
+      li.style.setProperty('--k', k);
+      li.style.setProperty('--xc', chip ? getComputedStyle(chip).getPropertyValue('--c').trim() || '#fff' : '#fff');
+    });
+    const cls = nav ? 'lights-nav' : 'lights', STEP = nav ? 160 : 230;
+    const go = () => {
+      clearTimeout(lightsT);
+      list.classList.remove('lights', 'lights-nav'); void list.offsetWidth;   // reinicia si se pulsa de nuevo
+      list.classList.add(cls);
+      lightsT = setTimeout(() => list.classList.remove(cls), ordered.length * STEP + 1200);
+    };
+    if (nav) go(); else setTimeout(go, 2600);   // al cargar: cuando ya terminaron de aparecer los botones
+  }
+
   function renderGames() {
     const games = CFG.games || [];
     // Botones con logotipos bajo mi nombre
     const chips = $('#gameChips');
     if (chips) chips.innerHTML = games.map((g, i) => `
-      <li><button class="game-chip pressable" type="button" data-game="${esc(g.id)}" aria-pressed="false" style="--c:${esc(g.accent || '#7fd6ff')};--i:${i}" title="${esc(g.name)}" aria-label="${esc(g.name)}">
+      <li><button class="game-chip pressable" type="button" data-game="${esc(g.id)}" aria-pressed="false" style="--c:${esc(g.chipColor || g.accent || '#7fd6ff')};--i:${i}" title="${esc(g.name)}" aria-label="${esc(g.name)}">
         <span class="chip-logo">${logoImg(g)}</span>
       </button></li>`).join('');
 
@@ -570,6 +672,7 @@
       if (go) { const link = $(`.nav-links a[data-nav="${go.dataset.goto}"]`); if (link) link.click(); }
     });
     const panel = $('#gameDetail'); if (panel) panel.inert = true;
+    lightUpChips();
 
     // Perfiles de juegos
     const row = $('#gameProfiles');
@@ -598,102 +701,54 @@
   }
 
   /* =========================================================
-     ESTADÍSTICAS
-     Fuente 1: stats.json que publica GitHub Actions.
-     Fuente 2: Discord en vivo (invitación pública, sin claves).
-     Nunca se muestran ceros por error ni cifras inventadas.
+     DISCORD EN VIVO
+     Fuente: API pública de invitaciones de Discord (sin claves ni tokens).
+     Se consulta al cargar y cada "discordSeconds" mientras la página está a la vista.
+     Nunca se muestran cifras inventadas: si falla, se avisa.
      ========================================================= */
-  const STATS_CFG = Object.assign({ url: '', branch: 'estadisticas', refreshMinutes: 15, discordLive: true }, CFG.stats);
-  const STAT_LABELS = {
-    discord: [['members', 'miembros', 'miembro']],
-    youtube: [['subscribers', 'suscriptores', 'suscriptor']],
-    tiktok: [['followers', 'seguidores', 'seguidor'], ['likes', 'me gusta', 'me gusta']],
-    steam: [['friends', 'amigos', 'amigo']],
-    instagram: [['followers', 'seguidores', 'seguidor']],
-    xbox: [['followers', 'seguidores', 'seguidor'], ['gamerscore', 'Gamerscore', 'Gamerscore', 'prefix']],
-    twitch: [['followers', 'seguidores', 'seguidor']]
-  };
-  const CACHE_KEY = 'eito:stats:v2';
-  const MAX_CACHE_AGE = 7 * 24 * 3600e3;
-  const STALE_AFTER = 3 * 3600e3;
-  const REFRESH_MS = Math.max(5, Number(STATS_CFG.refreshMinutes) || 15) * 60e3;
+  const STATS_CFG = Object.assign({ discordLive: true, discordSeconds: 60 }, CFG.stats);
+  const POLL_MS = Math.max(30, Number(STATS_CFG.discordSeconds) || 60) * 1000;
   const nf = new Intl.NumberFormat('es-MX');
-  const nf1 = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 1 });
-  const fmt = n => n >= 1e6 ? `${nf1.format(Math.floor(n / 1e5) / 10)} M` : n >= 1e4 ? `${nf1.format(Math.floor(n / 100) / 10)} mil` : nf.format(n);
   const validNumber = v => typeof v === 'number' && Number.isFinite(v) && v >= 0;
   function timeAgo(ms) {
-    const min = Math.max(0, Math.round((Date.now() - ms) / 60000));
-    if (min < 1) return 'hace un momento';
+    const sec = Math.max(0, Math.round((Date.now() - ms) / 1000));
+    if (sec < 60) return 'hace un momento';
+    const min = Math.round(sec / 60);
     if (min < 60) return `hace ${min} min`;
     const h = Math.round(min / 60);
-    if (h < 24) return `hace ${h} h`;
-    const d = Math.round(h / 24);
-    return `hace ${d} ${d === 1 ? 'día' : 'días'}`;
-  }
-  const st = { data: {}, discordFailed: false, fetching: false, lastFetch: 0 };
-
-  function loadCache() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
-      Object.entries(saved).forEach(([id, e]) => { if (e && e.stats && Date.now() - e.updatedAt < MAX_CACHE_AGE) st.data[id] = e; });
-    } catch (_) { /* sin almacenamiento */ }
-  }
-  function saveCache() {
-    try {
-      const out = {};
-      Object.entries(st.data).forEach(([id, e]) => { if (e.stats) out[id] = { stats: e.stats, updatedAt: e.updatedAt }; });
-      localStorage.setItem(CACHE_KEY, JSON.stringify(out));
-    } catch (_) { /* sin almacenamiento */ }
-  }
-  function mergeEntry(id, stats, updatedAt) {
-    const defs = STAT_LABELS[id];
-    if (!defs || !stats || !updatedAt) return;
-    const clean = {};
-    defs.forEach(([k]) => { if (validNumber(stats[k])) clean[k] = stats[k]; });
-    if (id === 'discord' && validNumber(stats.online)) clean.online = stats.online;
-    if (!Object.keys(clean).length) return;
-    const cur = st.data[id];
-    if (!cur || !cur.stats || updatedAt >= cur.updatedAt) st.data[id] = { stats: clean, updatedAt };
-  }
-
-  function statParts(id, entry) {
-    return STAT_LABELS[id].filter(([k]) => validNumber(entry.stats[k])).map(([k, plural, singular, mode]) => {
-      const n = entry.stats[k];
-      const word = n === 1 ? singular : plural;
-      const title = id === 'youtube' ? 'YouTube redondea el número público de suscriptores' : nf.format(n);
-      return mode === 'prefix'
-        ? `<span class="stat" title="${title}">${word} <b>${fmt(n)}</b></span>`
-        : `<span class="stat" title="${title}"><b>${fmt(n)}</b> ${word}</span>`;
-    });
+    return `hace ${h} h`;
   }
 
   /* Contador animado de Discord.
-     - En CADA carga de la página, cuando llegan las cifras, sube desde 0 hasta la
-       cifra real en ~9 s (effects.counterSeconds): empieza con saltos pequeños,
-       acelera y frena suave al final. No depende de que la sección esté a la vista.
-     - Si llega una cifra nueva mientras cuenta, solo cambia la meta: la animación
-       sigue su curva y su tiempo (no se reinicia ni da saltos).
-     - Actualizaciones posteriores (cada 15 min): pasa del número visible al nuevo en 1.5 s.
-     - Al terminar siempre muestra la cifra exacta. */
-  const easeCount = t => t < 0.82 ? 0.88 * Math.pow(t / 0.82, 2.3) : 0.88 + 0.12 * (1 - Math.pow(1 - (t - 0.82) / 0.18, 2));
+     - En CADA carga de la página, cuando llegan las cifras, los dos contadores suben
+       juntos desde 0 hasta la cifra real en ~15 s (effects.counterSeconds), con un
+       movimiento lento y continuo que frena suave al final.
+     - Si llega una cifra nueva mientras cuentan, solo cambia la meta: siguen su curva
+       y su tiempo (no se reinicia ni da saltos).
+     - Después, los cambios pasan del número visible al nuevo en 1.5 s.
+     - Al terminar siempre se ve la cifra exacta. No se guarda nada entre visitas. */
+  const easeCount = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;   // suave al empezar y al terminar
   const easeOut = t => 1 - Math.pow(1 - t, 3);
+  let countClock = 0;   // los dos contadores comparten el mismo inicio (van coordinados)
   function countTo(el, value) {
     if (!el || !validNumber(value)) return;
     if (el._anim) { el._anim.to = value; return; }              // contando: solo cambia la meta
     if (el._target === value) { el.textContent = nf.format(value); return; }
     const first = !Number.isFinite(el._shown);
     const from = first ? 0 : el._shown;
-    const secs = Math.min(15, Math.max(1, Number((CFG.effects || {}).counterSeconds) || 9));
-    const dur = (first ? secs : 1.5) * 1000 * (REDUCED.matches ? 0.15 : 1);
+    const secs = Math.min(30, Math.max(1, Number((CFG.effects || {}).counterSeconds) || 15));
+    // Igual en celular y en computadora, y también con "reducir animaciones" activado
+    // (contar números no es un movimiento en pantalla; antes ese modo lo acortaba a ~2 s).
+    const dur = (first ? secs : 1.5) * 1000;
     const ease = first ? easeCount : easeOut;
-    const anim = el._anim = { to: value, t0: 0 };
+    const anim = el._anim = { to: value };
     el.textContent = nf.format(from);
     const step = now => {
-      if (!anim.t0) anim.t0 = now;
+      if (!anim.t0) anim.t0 = first ? (countClock || (countClock = now)) : now;
       const t = Math.min(1, (now - anim.t0) / dur);
       if (t < 1) {
-        el._shown = Math.round(from + (anim.to - from) * ease(t));
-        el.textContent = nf.format(el._shown);
+        const v = Math.round(from + (anim.to - from) * ease(t));
+        if (v !== el._shown) { el._shown = v; el.textContent = nf.format(v); }   // solo toca el texto si cambia
         requestAnimationFrame(step);
         return;
       }
@@ -708,11 +763,11 @@
     else go();
   }
 
-  /* Estado del bloque de Discord: solo usa la consulta EN VIVO a Discord.
-     loading → cargando · ok → cifras reales · error → aviso claro (el botón para unirse sigue). */
-  const hub = { state: 'loading', members: null, online: null, at: 0, tries: 0 };
+  /* Estado del bloque de Discord.
+     loading → conectando · ok → cifras reales · error → aviso claro (el botón para unirse sigue). */
+  const hub = { state: 'loading', members: null, online: null, at: 0, tries: 0, failedRefresh: false };
   function renderHub() {
-    const mEl = $('#hubMembers'), oEl = $('#hubOnline'), note = $('#hubNote'), box = $('#hubStats');
+    const mEl = $('#hubMembers'), oEl = $('#hubOnline'), note = $('#hubNote'), box = $('#hubStats'), live = $('#hubLive');
     if (!box) return;
     const onlineBox = $('.hub-stat.online');
     box.dataset.state = hub.state;
@@ -720,81 +775,32 @@
       countTo(mEl, hub.members);
       if (validNumber(hub.online)) { onlineBox.hidden = false; countTo(oEl, hub.online); }
       else onlineBox.hidden = true;
-      note.textContent = hub.failedRefresh ? `No se pudo actualizar ahora · cifra de ${timeAgo(hub.at)}` : '';
+      note.textContent = '';
+      if (hub.failedRefresh) { live.dataset.state = 'stale'; live.lastChild.textContent = `Sin conexión ahora · cifra de ${timeAgo(hub.at)}`; }
+      else { live.dataset.state = 'live'; live.lastChild.textContent = 'Actualizado en tiempo real'; }
     } else if (hub.state === 'loading') {
-      note.textContent = 'Cargando cifras de Discord…';
+      live.dataset.state = 'loading'; live.lastChild.textContent = 'Conectando con Discord…';
+      note.textContent = '';
     } else {
       mEl.textContent = '—'; oEl.textContent = '—'; onlineBox.hidden = false;
+      live.dataset.state = 'error'; live.lastChild.textContent = 'Sin conexión con Discord';
       note.innerHTML = 'No se pudieron cargar las cifras de Discord ahora. El botón para unirte funciona igual. <button type="button" class="hub-retry" id="hubRetry">Reintentar</button>';
     }
+    // La tarjeta de Discord en "Mis redes" muestra la misma cifra real (sin animación).
+    if (discordCardStat) discordCardStat.textContent = hub.state === 'ok' && validNumber(hub.members) ? nf.format(hub.members) : '—';
   }
 
-  function renderStats() {
-    let newest = 0;
-    Object.entries(statSlots).forEach(([id, el]) => {
-      const entry = st.data[id];
-      const parts = entry && entry.stats ? statParts(id, entry) : [];
-      if (id === 'steam' && validNumber(CFG.steamAwardsManual) && CFG.steamAwardsManual > 0) {
-        parts.push(`<span class="stat manual" title="Dato escrito a mano en la configuración"><b>${nf.format(CFG.steamAwardsManual)}</b> premios</span>`);
-      }
-      if (parts.length) {
-        if (entry && entry.stats) {
-          if (Date.now() - entry.updatedAt > STALE_AFTER) parts.push(`<span class="stat-age">· dato de ${timeAgo(entry.updatedAt)}</span>`);
-          newest = Math.max(newest, entry.updatedAt);
-        }
-        el.innerHTML = parts.join('');
-        el.hidden = false;
-      } else if (entry && entry.error) {
-        el.innerHTML = '<span class="stat-msg">Cifras no disponibles por ahora</span>';
-        el.hidden = false;
-      } else {
-        el.hidden = true;
-      }
-    });
-
-    renderHub();
-
-    const up = $('#statsUpdated');
-    if (up) {
-      up.hidden = !newest;
-      if (newest) up.textContent = `Cifras públicas · actualizadas ${timeAgo(newest)}`;
-    }
-  }
-
-  function statsUrl() {
-    if (STATS_CFG.url) return STATS_CFG.url;
-    const m = location.hostname.match(/^([a-z0-9-]+)\.github\.io$/i);
-    if (m) {
-      const first = location.pathname.split('/').filter(Boolean)[0];
-      const repo = first && !/\.html?$/i.test(first) ? first : `${m[1]}.github.io`;
-      return `https://raw.githubusercontent.com/${m[1]}/${repo}/${STATS_CFG.branch}/stats.json`;
-    }
-    return '';   // Railway u otro servidor: sin stats.json (Discord funciona igual, en vivo)
-  }
   async function fetchJSON(url, timeout = 8000) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), timeout);
     try {
-      const res = await fetch(url, { signal: ctrl.signal, cache: 'no-cache', credentials: 'omit' });
+      const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store', credentials: 'omit' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.json();
     } finally { clearTimeout(t); }
   }
-  async function loadStatsFile() {
-    const url = statsUrl();
-    if (!url) return;
-    try {
-      const json = await fetchJSON(url);
-      Object.entries((json && json.platforms) || {}).forEach(([id, e]) => {
-        if (!e || !STAT_LABELS[id]) return;
-        const t = Date.parse(e.updatedAt);
-        if (e.stats && t) mergeEntry(id, e.stats, t);
-        if (!e.stats && e.ok === false && !(st.data[id] && st.data[id].stats)) st.data[id] = { error: true };
-      });
-    } catch (_) { /* se conservan las cifras guardadas */ }
-  }
   async function loadDiscordLive() {
-    if (!STATS_CFG.discordLive || !LINKS.discordInvite) { if (hub.state === 'loading') hub.state = 'error'; return; }
+    if (!STATS_CFG.discordLive || !LINKS.discordInvite) { hub.state = 'error'; return; }
     const code = (LINKS.discordInvite.match(/discord(?:\.gg|(?:app)?\.com\/invite)\/([\w-]+)/i) || [])[1];
     if (!code) { hub.state = 'error'; return; }
     hub.tries++;
@@ -804,30 +810,29 @@
       hub.members = j.approximate_member_count;
       hub.online = validNumber(j.approximate_presence_count) ? j.approximate_presence_count : null;
       hub.at = Date.now(); hub.state = 'ok'; hub.failedRefresh = false; hub.tries = 0;
-      mergeEntry('discord', { members: hub.members, online: hub.online }, hub.at);   // también para la tarjeta de Discord
-      st.discordFailed = false;
     } catch (_) {
-      st.discordFailed = true;
       if (hub.state === 'ok') hub.failedRefresh = true;            // se conservan las cifras reales ya mostradas
       else hub.state = 'error';
     }
   }
-  async function refreshStats() {
-    if (st.fetching) return;
-    st.fetching = true; st.lastFetch = Date.now();
-    await Promise.allSettled([loadStatsFile(), loadDiscordLive()]);
-    st.fetching = false;
-    saveCache(); renderStats();
-    // Si Discord falló al cargar, se reintenta solo (a los 20 s y a los 60 s).
-    if (hub.state === 'error' && hub.tries < 3) setTimeout(refreshStats, hub.tries === 1 ? 20e3 : 60e3);
+  let fetching = false, lastFetch = 0, retryTimer = 0;
+  async function refreshDiscord() {
+    if (fetching) return;                                         // nunca dos consultas a la vez
+    fetching = true; lastFetch = Date.now();
+    await loadDiscordLive();
+    fetching = false;
+    renderHub();
+    clearTimeout(retryTimer);
+    // Si falló al cargar, se reintenta solo (a los 20 s y a los 60 s).
+    if (hub.state === 'error' && hub.tries < 3) retryTimer = setTimeout(refreshDiscord, hub.tries === 1 ? 20e3 : 60e3);
   }
   function startStats() {
-    loadCache(); renderStats(); refreshStats();
-    document.addEventListener('click', e => { if (e.target.closest('#hubRetry')) { hub.state = 'loading'; hub.tries = 0; renderHub(); refreshStats(); } });
-    setInterval(() => (document.visibilityState === 'visible' ? refreshStats() : renderStats()), REFRESH_MS);
-    setInterval(renderStats, 60e3);
+    renderHub(); refreshDiscord();
+    document.addEventListener('click', e => { if (e.target.closest('#hubRetry')) { hub.state = 'loading'; hub.tries = 0; renderHub(); refreshDiscord(); } });
+    // Un solo temporizador: consulta de nuevo solo si la página está a la vista.
+    setInterval(() => { if (document.visibilityState === 'visible') refreshDiscord(); else if (hub.state === 'ok') renderHub(); }, POLL_MS);
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && Date.now() - st.lastFetch > REFRESH_MS) refreshStats();
+      if (document.visibilityState === 'visible' && Date.now() - lastFetch > POLL_MS) refreshDiscord();
     });
   }
 
@@ -873,11 +878,14 @@
         size: (SMALL.matches ? 7 : 9) + Math.random() * (SMALL.matches ? 9 : 13),
         vx: (Math.random() - 0.5) * 4, vy: -1.5 - Math.random() * 3,   // px/s: deriva lentísima
         tw: 0.25 + Math.random() * 0.5, ph: Math.random() * 6.28,       // parpadeo suave
-        rot: Math.random() * 0.6 - 0.3, spr: sprites[i % sprites.length], base: 0.35 + Math.random() * 0.45
+        rot: Math.random() * 0.6 - 0.3, spr: sprites[i % sprites.length], base: 0.35 + Math.random() * 0.45,
+        // Flotación: vaivén suave (px) + rumbo que cambia poco a poco cada pocos segundos.
+        fa: 6 + Math.random() * 10, fp: Math.random() * 6.28, fs: 0.35 + Math.random() * 0.4,
+        tvx: (Math.random() - 0.5) * 6, tvy: -1 - Math.random() * 3.5, nextTurn: 2 + Math.random() * 5
       };
     }
     function resize() {
-      dpr = Math.min(1.5, window.devicePixelRatio || 1);
+      dpr = 1;   // las estrellas son difusas: con resolución normal se ven igual y cuestan menos (PC y celular)
       w = window.innerWidth; h = window.innerHeight;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -899,10 +907,13 @@
       boost += ((energy > 0 ? 1 : 0) - boost) * Math.min(1, dt * 1.5);
       const av = avoidRect(t);
       for (const s of stars) {
-        s.x += (s.vx * dt) / w; s.y += (s.vy * (1 + boost * 0.6) * dt) / h; s.ph += s.tw * dt;
+        if ((s.nextTurn -= dt) <= 0) { s.tvx = (Math.random() - 0.5) * 6; s.tvy = -1 - Math.random() * 3.5; s.nextTurn = 3 + Math.random() * 5; }
+        const ease = Math.min(1, dt * 0.4);   // el rumbo nuevo se alcanza en varios segundos (sin giros bruscos)
+        s.vx += (s.tvx - s.vx) * ease; s.vy += (s.tvy - s.vy) * ease;
+        s.x += (s.vx * dt) / w; s.y += (s.vy * (1 + boost * 0.6) * dt) / h; s.ph += s.tw * dt; s.fp += s.fs * dt;
         if (s.y < -0.05) { s.y = 1.05; s.x = Math.random(); }
         if (s.x < -0.05) s.x = 1.05; else if (s.x > 1.05) s.x = -0.05;
-        const x = s.x * w, y = s.y * h;
+        const x = s.x * w + Math.sin(s.fp) * s.fa, y = s.y * h + Math.cos(s.fp * 0.8) * s.fa * 0.6;
         let a = s.base * (0.55 + 0.45 * Math.sin(s.ph)) * (0.85 + boost * 0.25 + energy * 0.5);
         if (av) { const d = Math.hypot(x - av.x, y - av.y); if (d < av.r) a *= Math.max(0, (d - av.r * 0.55) / (av.r * 0.45)); }
         if (a <= 0.02) continue;
@@ -925,7 +936,8 @@
     function halt() { cancelAnimationFrame(raf); raf = 0; }
     if (enabled) {
       resize(); run();
-      window.addEventListener('resize', resize, { passive: true });
+      // Al girar el celular o cambiar el tamaño, se recalcula una sola vez (no en cada píxel).
+      let rt = 0; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 150); }, { passive: true });
       document.addEventListener('visibilitychange', () => (document.hidden ? halt() : run()));
     } else if (canvas) canvas.hidden = true;
     return {
@@ -951,37 +963,58 @@
     const canvas = $('#vizCanvas');
     const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
     const eq = $$('#playEq i');
-    let analyser = null, data = null, raf = 0, running = false;
+    let analyser = null, data = null, raf = 0, wanted = false, running = false, lastSignal = 0, media = null;
+    // ¿Está sonando DE VERDAD en este cuadro? Se lee del propio <audio> (no de un estado guardado),
+    // así nunca se anima "como si hubiera música" en pausa, al buscar o mientras carga.
+    const audible = () => wanted && media && !media.paused && !media.ended && !media.seeking && media.readyState >= 3;
     let bass = 0, mid = 0, tre = 0, avgBass = 0, lastHit = 0, hue = 0;
-    const HALF = () => (SMALL.matches ? 22 : 34);
-    let vals = new Float32Array(40), caps = new Float32Array(40), capV = new Float32Array(40);
+    // Medidas calculadas una sola vez (y al cambiar el tamaño), no en cada cuadro:
+    // así el dibujo no obliga al navegador a recalcular el diseño 60 veces por segundo.
+    let W = 0, H = 0, inner = 0, maxLen = 0, half = 0, bars = [], binHz = 0;
+    let vals = new Float32Array(0), caps = new Float32Array(0), capV = new Float32Array(0);
     const waves = [];
     function size() {
       if (!canvas) return;
       const r = canvas.getBoundingClientRect();
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+      W = r.width; H = r.height;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
       if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const ring = wrap.querySelector('.rgb-ring');
+      inner = (ring ? ring.offsetWidth : 150) / 2 + 7;
+      maxLen = Math.max(16, Math.min(W, H) / 2 - inner - 4);
+      half = SMALL.matches ? 22 : 34;
+      if (vals.length !== half) { vals = new Float32Array(half); caps = new Float32Array(half); capV = new Float32Array(half); }
+      bars = [];
+      for (let k = 0; k < half; k++) {
+        // Reparto logarítmico de frecuencias: 45 Hz (arriba) → 11 kHz (abajo), en espejo.
+        const f0 = 45 * Math.pow(11000 / 45, k / half), f1 = 45 * Math.pow(11000 / 45, (k + 1) / half);
+        const sides = [1, -1].map(side => { const a = -Math.PI / 2 + side * (k + 0.5) / half * (Math.PI * 0.94); return { cos: Math.cos(a), sin: Math.sin(a), hOff: (side > 0 ? k : half * 2 - k) * (360 / (half * 2)) }; });
+        bars.push({ f0, f1, sides, boost: 1 + k / half * 0.9 });
+      }
     }
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(size, 150); }, { passive: true });
     function loop(t) {
       if (!analyser || !ctx) { raf = 0; return; }
+      running = audible();
       analyser.getByteFrequencyData(data);
-      const nyq = analyser.context.sampleRate / 2, binHz = nyq / data.length;
       const bin = hz => Math.max(1, Math.min(data.length - 1, Math.round(hz / binHz)));
       const band = (a, b) => { const i0 = bin(a), i1 = Math.max(i0, bin(b)); let sum = 0; for (let i = i0; i <= i1; i++) sum += data[i]; return sum / ((i1 - i0 + 1) * 255); };
       // Bandas reales: graves 40-180 Hz · medios 180 Hz-2.5 kHz · agudos 2.5-12 kHz
       const tb = running ? Math.pow(band(40, 180), 1.5) : 0;
       const tm = running ? Math.pow(band(180, 2500), 1.25) : 0;
       const tt = running ? Math.min(1, Math.pow(band(2500, 12000), 1.05) * 1.8) : 0;
-      bass += (tb - bass) * (tb > bass ? 0.35 : 0.07);
-      mid += (tm - mid) * (tm > mid ? 0.22 : 0.06);
-      tre += (tt - tre) * (tt > tre ? 0.32 : 0.08);
+      if (running && (tb + tm + tt) > 0.004) lastSignal = t;           // hay sonido real llegando al analizador
+      // Bajada más rápida cuando no suena: al pausar o buscar, el espectro se apaga en ~0.4 s.
+      const fall = running ? 1 : 2.6;
+      bass += (tb - bass) * (tb > bass ? 0.35 : 0.07 * fall);
+      mid += (tm - mid) * (tm > mid ? 0.22 : 0.06 * fall);
+      tre += (tt - tre) * (tt > tre ? 0.32 : 0.08 * fall);
       avgBass += (tb - avgBass) * 0.03;
       wrap.style.setProperty('--bass', bass.toFixed(3));
-      wrap.style.setProperty('--mid', mid.toFixed(3));
       wrap.style.setProperty('--tre', tre.toFixed(3));
       Stars.setEnergy(running ? bass : 0);
-      // Indicador del reproductor: 5 barritas con las bandas reales.
       if (eq.length) {
         const lv = [bass, (bass + mid) / 2, mid, (mid + tre) / 2, tre];
         eq.forEach((b, i) => { b.style.transform = `scaleY(${(0.18 + lv[i] * 0.82).toFixed(3)})`; });
@@ -989,69 +1022,75 @@
       // Golpe de graves → onda de choque (máx. 3 a la vez, mín. 180 ms entre ondas).
       if (running && tb > 0.28 && tb > avgBass * 1.35 && t - lastHit > 180 && waves.length < 3) { waves.push({ r: 0, a: 0.6 }); lastHit = t; }
 
-      const W = canvas.clientWidth, H = canvas.clientHeight, cx = W / 2, cy = H / 2;
-      const ring = wrap.querySelector('.rgb-ring');
-      const inner = ring.offsetWidth / 2 + 7;
-      const maxLen = Math.max(16, Math.min(W, H) / 2 - inner - 4);
-      const half = HALF();
-      if (vals.length !== half) { vals = new Float32Array(half); caps = new Float32Array(half); capV = new Float32Array(half); }
-      const seg = SMALL.matches ? 3.2 : 4, gap = SMALL.matches ? 1.8 : 2, segs = Math.max(4, Math.floor(maxLen / (seg + gap)));
+      const cx = W / 2, cy = H / 2;
+      const seg = SMALL.matches ? 3.2 : 4, gap = SMALL.matches ? 1.8 : 2, step = seg + gap, segs = Math.max(4, Math.floor(maxLen / step));
       ctx.clearRect(0, 0, W, H);
       hue = (hue + 0.6 + tre * 2) % 360;
-      // Ondas de choque
       for (let i = waves.length - 1; i >= 0; i--) {
         const wv = waves[i]; wv.r += 1.6 + bass * 2; wv.a *= 0.94;
         if (wv.a < 0.03 || wv.r > maxLen) { waves.splice(i, 1); continue; }
+        ctx.setLineDash([]);
         ctx.strokeStyle = `hsla(${hue} 100% 70% / ${wv.a})`; ctx.lineWidth = 1.6;
         ctx.beginPath(); ctx.arc(cx, cy, inner + wv.r, 0, 6.283); ctx.stroke();
       }
       ctx.lineCap = 'butt';
-      const lw = SMALL.matches ? 3 : 3.6;
+      ctx.lineWidth = SMALL.matches ? 3 : 3.6;
+      let busy = wanted || bass > 0.004 || waves.length > 0;
       for (let k = 0; k < half; k++) {
-        // Reparto logarítmico de frecuencias: 45 Hz (arriba) → 11 kHz (abajo)
-        const f0 = 45 * Math.pow(11000 / 45, k / half), f1 = 45 * Math.pow(11000 / 45, (k + 1) / half);
-        const target = running ? Math.min(1, Math.pow(band(f0, f1), 1.35) * (1 + k / half * 0.9)) : 0;
-        vals[k] += (target - vals[k]) * (target > vals[k] ? 0.45 : 0.08);
-        if (vals[k] > caps[k]) { caps[k] = vals[k]; capV[k] = 0; } else { capV[k] += 0.0009; caps[k] = Math.max(0, caps[k] - capV[k]); }
+        const b = bars[k];
+        const target = running ? Math.min(1, Math.pow(band(b.f0, b.f1), 1.35) * b.boost) : 0;
+        vals[k] += (target - vals[k]) * (target > vals[k] ? 0.45 : 0.08 * fall);
+        if (vals[k] > caps[k]) { caps[k] = vals[k]; capV[k] = 0; } else { capV[k] += running ? 0.0009 : 0.004; caps[k] = Math.max(0, caps[k] - capV[k]); }
+        if (vals[k] > 0.01 || caps[k] > 0.04) busy = true;
         const lit = Math.round(vals[k] * segs);
-        for (const side of [1, -1]) {
-          const ang = -Math.PI / 2 + side * (k + 0.5) / half * (Math.PI * 0.94);
-          const cos = Math.cos(ang), sin = Math.sin(ang);
-          const h = (hue + (side > 0 ? k : half * 2 - k) * (360 / (half * 2))) % 360;
-          for (let sIdx = 0; sIdx < lit; sIdx++) {
-            const r0 = inner + sIdx * (seg + gap), r1 = r0 + seg;
-            const tip = sIdx === lit - 1;
-            ctx.strokeStyle = tip ? `hsla(${h} 100% ${70 + tre * 25}% / .95)` : `hsla(${h} 100% 58% / ${0.35 + (sIdx / segs) * 0.5})`;
-            ctx.lineWidth = lw;
-            ctx.beginPath(); ctx.moveTo(cx + cos * r0, cy + sin * r0); ctx.lineTo(cx + cos * r1, cy + sin * r1); ctx.stroke();
+        for (const sd of b.sides) {
+          const h = (hue + sd.hOff) % 360;
+          // Cuerpo de la barra: UN trazo con guiones = segmentos LED (antes: un trazo por segmento).
+          if (lit > 1) {
+            ctx.setLineDash([seg, gap]);
+            ctx.strokeStyle = `hsla(${h} 100% 58% / .62)`;
+            ctx.beginPath(); ctx.moveTo(cx + sd.cos * inner, cy + sd.sin * inner);
+            ctx.lineTo(cx + sd.cos * (inner + (lit - 1) * step - gap), cy + sd.sin * (inner + (lit - 1) * step - gap)); ctx.stroke();
           }
-          if (caps[k] > 0.04) {
-            const rc = inner + Math.round(caps[k] * segs) * (seg + gap) + 1;
-            ctx.strokeStyle = `hsla(${h} 100% 85% / .9)`; ctx.lineWidth = lw;
-            ctx.beginPath(); ctx.moveTo(cx + cos * rc, cy + sin * rc); ctx.lineTo(cx + cos * (rc + 1.6), cy + sin * (rc + 1.6)); ctx.stroke();
+          ctx.setLineDash([]);
+          if (lit > 0) {   // punta brillante (los agudos la aclaran)
+            const r0 = inner + (lit - 1) * step;
+            ctx.strokeStyle = `hsla(${h} 100% ${70 + tre * 25}% / .95)`;
+            ctx.beginPath(); ctx.moveTo(cx + sd.cos * r0, cy + sd.sin * r0); ctx.lineTo(cx + sd.cos * (r0 + seg), cy + sd.sin * (r0 + seg)); ctx.stroke();
+          }
+          if (caps[k] > 0.04) {   // tapa que marca el pico y cae despacio
+            const rc = inner + Math.round(caps[k] * segs) * step + 1;
+            ctx.strokeStyle = `hsla(${h} 100% 85% / .9)`;
+            ctx.beginPath(); ctx.moveTo(cx + sd.cos * rc, cy + sd.sin * rc); ctx.lineTo(cx + sd.cos * (rc + 1.6), cy + sd.sin * (rc + 1.6)); ctx.stroke();
           }
         }
       }
-      const busy = running || bass > 0.004 || waves.length || vals.some(v => v > 0.01) || caps.some(c => c > 0.04);
       if (busy) raf = requestAnimationFrame(loop);
       else {
         raf = 0; ctx.clearRect(0, 0, W, H);
-        ['--bass', '--mid', '--tre'].forEach(v => wrap.style.setProperty(v, '0'));
+        ['--bass', '--tre'].forEach(v => wrap.style.setProperty(v, '0'));
         eq.forEach(b => { b.style.transform = ''; });
         Stars.setEnergy(0);
       }
     }
-    window.addEventListener('resize', size, { passive: true });
+    const wake = () => { if (analyser && ctx && !raf && !document.hidden) raf = requestAnimationFrame(loop); };   // nunca dos ciclos
+    document.addEventListener('visibilitychange', () => { if (document.hidden) { cancelAnimationFrame(raf); raf = 0; } else if (wanted) wake(); });
     return {
-      attach(an) { analyser = an; data = new Uint8Array(an.frequencyBinCount); size(); },
+      // Se conecta UNA sola vez; las repeticiones de la canción reutilizan el mismo analizador.
+      attach(an, el) { if (analyser) return; analyser = an; media = el; data = new Uint8Array(an.frequencyBinCount); binHz = (an.context.sampleRate / 2) / data.length; size(); },
       get live() { return !!analyser; },
+      get lastSignal() { return lastSignal; },
+      get looping() { return !!raf; },
+      get audible() { return audible(); },
       start() {
-        running = true;
+        wanted = true;
         wrap.classList.add('playing');
-        if (analyser) { wrap.classList.add('live'); if (!raf) raf = requestAnimationFrame(loop); }
+        if (analyser) wrap.classList.add('live');
+        wake();
       },
+      wake,                            // tras buscar, cargar o volver a la pestaña
       stop() {
-        running = false;               // las barras bajan suave y el aro vuelve a su giro normal
+        wanted = false;                // las barras bajan rápido y el aro vuelve a su giro normal
         wrap.classList.remove('playing', 'live');
       }
     };
@@ -1059,7 +1098,10 @@
 
   /* =========================================================
      REPRODUCTOR PROPIO (HTML5 Audio, archivos locales)
-     - Nunca suena solo al cargar la página.
+     - Nunca suena solo al cargar la página (lo exigen los navegadores y así lo quiero).
+     - Un solo elemento <audio>, un solo AudioContext y un solo analizador.
+     - En bucle (music.loop): al terminar vuelve al principio sola, sin cortes,
+       hasta que se pause. Si se pausa, no se reanuda sola.
      - Empieza en "startSeconds" de cada canción (configurable).
      - Estados: listo, cargando, sonando, en pausa y error.
      ========================================================= */
@@ -1067,29 +1109,60 @@
     const M = CFG.music || {};
     const audio = $('#audio');
     const player = $('#player');
-    const playBtn = $('#playBtn'), seek = $('#seek'), msg = $('#playerMsg');
+    const playBtn = $('#playBtn'), seek = $('#seek'), seekWrap = $('#seekWrap'), msg = $('#playerMsg');
     const tCur = $('#timeCur'), tDur = $('#timeDur'), modeEl = $('#vizMode');
     const restartBtn = $('#restartBtn'), prevBtn = $('#prevBtn'), nextBtn = $('#nextBtn'), vol = $('#vol');
     const coverEl = $('#coverArt');
     const volume = Math.min(1, Math.max(0, M.volume == null ? 0.5 : Number(M.volume)));
-    // Compatible con la configuración anterior (music.file) y con la lista nueva (music.tracks).
     const tracks = (Array.isArray(M.tracks) && M.tracks.length ? M.tracks
       : [{ title: M.title, artist: M.artist, file: M.file, cover: M.cover, startSeconds: M.startSeconds != null ? M.startSeconds : M.startAt }])
       .filter(t => t && t.file);
+    const loopOn = M.loop !== false;
     const fmtT = s => (!Number.isFinite(s) || s < 0) ? '--:--' : `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
     const say = t => { msg.textContent = t || ''; };
     const setState = st => { player.dataset.state = st; };
-    let idx = 0, primed = false, playing = false, dragging = false, wantPlay = false;
-    let ac = null, gain = null, graphTried = false;
+    let idx = 0, primed = false, playing = false, dragging = false, wantPlay = false, playSince = 0;
+    let ac = null, gain = null, graphTried = false, analysing = false;
     vol.value = String(Math.round(volume * 100));
 
+    function setProgress(frac) {
+      const f = Math.min(1, Math.max(0, frac || 0));
+      seekWrap.style.setProperty('--p', f.toFixed(4));
+      if (!dragging) seek.value = String(Math.round(f * 1000));
+    }
+    // Indicador del espectro (siempre visible). Dice lo que pasa DE VERDAD:
+    //  en vivo · en pausa · cargando · sin señal de audio · detenido · no disponible.
+    const MODE_TIPS = {
+      on: 'El aro y el espectro reaccionan a la música real',
+      paused: 'La música está en pausa: el espectro está detenido',
+      wait: 'El navegador está cargando o buscando esa parte de la canción',
+      nosignal: 'Suena, pero el analizador no recibe sonido',
+      error: 'No se puede analizar el audio en este navegador o desde un archivo local'
+    };
+    let modeWhy = '';
+    function updateMode() {
+      const now = performance.now();
+      const ok = analysing && ac && ac.state === 'running';
+      let txt, st;
+      if (graphTried && !analysing) { txt = 'Espectro no disponible'; st = 'error'; }
+      else if (!playing) { txt = 'Espectro en pausa'; st = 'paused'; }
+      else if (graphTried && !ok) { txt = 'Espectro detenido'; st = 'error'; }
+      else if (audio.seeking || audio.readyState < 3) { txt = 'Espectro cargando…'; st = 'wait'; }
+      else if (now - Math.max(Viz.lastSignal, playSince) > 4000) { txt = 'Sin señal de audio'; st = 'nosignal'; }
+      else { txt = 'Espectro en vivo'; st = 'on'; }
+      if (modeEl.textContent !== txt) modeEl.textContent = txt;
+      if (modeEl.dataset.state !== st) { modeEl.dataset.state = st; modeEl.title = modeWhy && st === 'error' ? modeWhy : MODE_TIPS[st]; }
+    }
     function setPlaying(p) {
       if (p === playing) return;
       playing = p;
+      if (p) playSince = performance.now();
       playBtn.classList.toggle('is-playing', p);
       playBtn.setAttribute('aria-label', p ? 'Pausar' : 'Reproducir');
+      playBtn.setAttribute('aria-pressed', String(p));
       document.body.classList.toggle('music-on', p);
       if (p) Viz.start(); else Viz.stop();
+      updateMode();
     }
     if (!tracks.length) {
       playBtn.disabled = true; seek.disabled = true;
@@ -1115,30 +1188,33 @@
       primed = false;
       $('#trackTitle').textContent = t.title || 'Canción';
       const artist = $('#trackArtist');
-      artist.textContent = t.artist || 'Artista sin confirmar';
-      artist.classList.toggle('unknown', !t.artist);
-      const tag = $('#trackTag'); tag.hidden = !t.tag; tag.textContent = t.tag || '';
+      artist.textContent = t.artist || '';
+      artist.hidden = !t.artist;
       coverEl.setAttribute('aria-label', `Portada de ${t.title || 'la canción'}`);
       showCover(t.cover || (CFG.profile || {}).logo || '');
-      tCur.textContent = fmtT(startOf(t)); tDur.textContent = '--:--'; seek.value = '0'; seek.disabled = true;
+      tCur.textContent = fmtT(startOf(t)); tDur.textContent = '--:--'; setProgress(0); seek.disabled = true;
       restartBtn.disabled = true;
       say('');
       setState('idle');
-      audio.preload = 'metadata';          // solo los datos (duración), no la canción entera
+      audio.loop = loopOn && tracks.length === 1;   // una sola canción: bucle nativo, sin cortes
+      audio.preload = 'metadata';                   // solo los datos (duración), no la canción entera
       audio.src = t.file;
     }
 
-    // Análisis real del audio (para el aro y el espectro). Si no se puede, la música suena igual.
+    // Análisis real del audio (para el aro y el espectro). Se crea UNA vez.
+    // Si no se puede, la música suena igual.
     function connectGraph() {
-      if (graphTried) return Promise.resolve(!!gain);
+      if (graphTried) return Promise.resolve(analysing);
       graphTried = true;
       if (location.protocol === 'file:') {
         // Abierta como archivo local, el navegador bloquea el análisis (y silenciaría el audio).
-        setMode(false, 'Ábrela desde un servidor (por ejemplo GitHub Pages) para ver el espectro en vivo.');
+        modeWhy = 'Abriste la página como archivo local: el navegador no deja analizar el audio. Ábrela con ABRIR-EITO-LOCAL.bat (o desde tu servidor) para ver el espectro.';
+        console.info('[EITO] ' + modeWhy);
+        updateMode();
         return Promise.resolve(false);
       }
       const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) { setMode(false, 'Este navegador no permite analizar el audio.'); return Promise.resolve(false); }
+      if (!AC) { modeWhy = 'Este navegador no permite analizar el audio.'; updateMode(); return Promise.resolve(false); }
       try {
         ac = new AC();
         const src = ac.createMediaElementSource(audio);
@@ -1146,27 +1222,27 @@
         gain = ac.createGain(); gain.gain.value = Number(vol.value) / 100;
         src.connect(an); an.connect(gain); gain.connect(ac.destination);
         audio.volume = 1;
-        Viz.attach(an);
+        Viz.attach(an, audio);
+        analysing = true;
+        // Si el navegador suspende el contexto (llamada, otra app…) mientras suena, se intenta reanudar.
+        ac.addEventListener('statechange', () => {
+          updateMode();
+          if (ac.state !== 'running' && !audio.paused) ac.resume().catch(() => {});
+        });
       } catch (e) {
-        gain = null;
-        setMode(false, 'No se pudo iniciar el análisis del audio; la música suena normal.');
+        gain = null; analysing = false;
+        modeWhy = 'No se pudo iniciar el análisis del audio; la música suena normal.';
+        updateMode();
         return Promise.resolve(false);
       }
       return Promise.race([ac.resume().then(() => ac.state === 'running'), new Promise(r => setTimeout(() => r(false), 1500))])
-        .then(ok => { setMode(ok); return ok; }, () => { setMode(false); return false; });
-    }
-    function setMode(live, why) {
-      modeEl.hidden = false;
-      modeEl.textContent = live ? 'Espectro en vivo' : 'Sin análisis';
-      modeEl.classList.toggle('off', !live);
-      modeEl.title = live ? 'El aro y el espectro reaccionan a la música real' : (why || 'No se pudo analizar el audio; el aro mantiene su giro normal');
-      if (!live && why) console.info('[EITO] ' + why);
+        .then(ok => { updateMode(); return ok; }, () => { updateMode(); return false; });
     }
 
     function play() {
       wantPlay = true;
       const t = tracks[idx];
-      if (ac && ac.state === 'suspended') ac.resume().catch(() => {});
+      if (ac && ac.state !== 'running') ac.resume().catch(() => {});
       const graph = connectGraph();             // se crea dentro del toque (lo exigen los navegadores)
       if (!primed) {
         primed = true;
@@ -1182,7 +1258,7 @@
       const p = audio.play();
       if (p && p.catch) p.catch(err => {
         audio.muted = false; wantPlay = false; setPlaying(false); setState(audio.error ? 'error' : 'idle');
-        if (!audio.error) say(err && err.name === 'NotAllowedError' ? 'Toca reproducir de nuevo para escuchar.' : 'No se pudo reproducir. Inténtalo otra vez.');
+        if (!audio.error) say(err && err.name === 'NotAllowedError' ? 'Toca reproducir para escuchar.' : 'No se pudo reproducir. Inténtalo otra vez.');
       });
       graph.then(() => { if (gain) gain.gain.value = Number(vol.value) / 100; });
     }
@@ -1192,35 +1268,58 @@
       tDur.textContent = fmtT(audio.duration); seek.disabled = false; restartBtn.disabled = false;
       if (!audio.currentTime || audio.currentTime < 0.05) tCur.textContent = fmtT(Math.min(startOf(tracks[idx]), audio.duration || 0));
     });
-    audio.addEventListener('playing', () => { setState('playing'); setPlaying(true); say(''); });
-    audio.addEventListener('waiting', () => { if (wantPlay) setState('loading'); });
+    audio.addEventListener('play', () => { if (ac && ac.state !== 'running') ac.resume().catch(() => {}); });
+    audio.addEventListener('playing', () => { setState('playing'); setPlaying(true); Viz.wake(); say(''); updateMode(); });
+    audio.addEventListener('waiting', () => { if (wantPlay) setState('loading'); updateMode(); });
+    // Al mover la barra: el espectro baja mientras busca y sigue el audio NUEVO al terminar.
+    audio.addEventListener('seeking', updateMode);
+    audio.addEventListener('seeked', () => { Viz.wake(); updateMode(); });
+    // Al volver a la pestaña con música, se reanuda el análisis si el navegador lo había detenido.
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !audio.paused && ac && ac.state !== 'running') ac.resume().catch(() => {});
+    });
     audio.addEventListener('pause', () => { setPlaying(false); if (player.dataset.state !== 'error') setState('paused'); });
+    // Sin bucle (o con varias canciones): al terminar pasa a la siguiente o se detiene.
     audio.addEventListener('ended', () => {
       setPlaying(false); setState('paused');
-      if (tracks.length > 1) { load(idx + 1); play(); }
-      else { primed = false; tCur.textContent = fmtT(startOf(tracks[idx])); seek.value = '0'; }
+      if (tracks.length > 1 && (loopOn || idx < tracks.length - 1)) { load(idx + 1); play(); }
+      else { primed = false; tCur.textContent = fmtT(startOf(tracks[idx])); setProgress(0); }
     });
     audio.addEventListener('error', () => {
       if (!audio.getAttribute('src')) return;
       wantPlay = false; audio.muted = false; setPlaying(false); setState('error'); primed = false;
-      const f = tracks[idx].file;
-      say(`No se pudo cargar el audio (${f.split('/').pop()}). Revisa que el archivo esté en assets/audio/ y la ruta en js/config.js.`);
+      say(`No se pudo cargar el audio (${tracks[idx].file.split('/').pop()}). Revisa que el archivo esté en assets/audio/ y la ruta en js/config.js.`);
     });
     audio.addEventListener('timeupdate', () => {
-      if (dragging || !audio.duration) return;
-      tCur.textContent = fmtT(audio.currentTime);
-      seek.value = String(Math.round((audio.currentTime / audio.duration) * 1000));
-      seek.style.setProperty('--p', `${(audio.currentTime / audio.duration) * 100}%`);
+      if (!audio.duration) return;
+      if (!dragging) { tCur.textContent = fmtT(audio.currentTime); setProgress(audio.currentTime / audio.duration); }
+      updateMode();
     });
-    seek.addEventListener('input', () => { dragging = true; tCur.textContent = fmtT((seek.value / 1000) * audio.duration); seek.style.setProperty('--p', `${seek.value / 10}%`); });
-    seek.addEventListener('change', () => { dragging = false; if (audio.duration) { primed = true; audio.currentTime = (seek.value / 1000) * audio.duration; } });
-    vol.addEventListener('input', () => {
+    // Barra de progreso: se puede arrastrar (ratón o dedo) para avanzar o retroceder.
+    seek.addEventListener('input', () => {
+      dragging = true;
+      const f = seek.value / 1000;
+      seekWrap.style.setProperty('--p', f.toFixed(4));
+      if (audio.duration) tCur.textContent = fmtT(f * audio.duration);
+    });
+    const commitSeek = () => {
+      if (!dragging) return;
+      dragging = false;
+      if (audio.duration) { primed = true; audio.currentTime = (seek.value / 1000) * audio.duration; }
+    };
+    seek.addEventListener('change', commitSeek);
+    seek.addEventListener('pointerup', commitSeek);
+    seek.addEventListener('touchend', commitSeek, { passive: true });
+    const volWrap = $('#volWrap');
+    const setVol = () => {
       const v = Number(vol.value) / 100;
       if (gain) gain.gain.value = v; else audio.volume = v;
-      vol.style.setProperty('--p', `${vol.value}%`);
-    });
-    vol.style.setProperty('--p', `${vol.value}%`);
-    audio.volume = volume;
+      volWrap.style.setProperty('--v', v.toFixed(3));
+      vol.setAttribute('aria-valuetext', `${vol.value} %`);
+      volWrap.classList.toggle('muted', v === 0);
+    };
+    vol.addEventListener('input', setVol);
+    setVol();
     playBtn.addEventListener('click', () => { if (audio.paused) play(); else pause(); });
     restartBtn.addEventListener('click', () => {
       const st = startOf(tracks[idx]);
@@ -1233,8 +1332,8 @@
       prevBtn.addEventListener('click', () => { const was = !audio.paused; load(idx - 1); if (was) play(); });
       nextBtn.addEventListener('click', () => { const was = !audio.paused; load(idx + 1); if (was) play(); });
     }
-    tracks.forEach(t => { if (t.tag && /fragmento/i.test(t.tag)) console.info(`[EITO] "${t.title}" es un fragmento: reemplázalo por la canción completa autorizada en js/config.js › music.tracks.`); });
     load(0);
+    updateMode();
   }
 
   /* =========================================================
@@ -1290,6 +1389,16 @@
   /* =========================================================
      INICIO
      ========================================================= */
+  /* Velocidad del aro RGB (igual en celular y computadora). Con "reducir animaciones"
+     activado en el sistema (en Windows: Accesibilidad › Efectos visuales › Efectos de animación)
+     se usa ringSecondsReduced: más calmado, pero sin dejar de girar de forma visible. */
+  function applyRingSpeed() {
+    const fx = CFG.effects || {};
+    const t = REDUCED.matches ? (Number(fx.ringSecondsReduced) || 3) : (Number(fx.ringSeconds) || 1.5);
+    document.documentElement.style.setProperty('--ring-time', `${Math.min(20, Math.max(0.6, t))}s`);
+  }
+  safe('aro', applyRingSpeed);
+  if (REDUCED.addEventListener) REDUCED.addEventListener('change', () => safe('aro', applyRingSpeed));
   safe('perfil', renderProfile);
   safe('acciones', bindActions);
   safe('toques', setupTapGuard);
@@ -1302,5 +1411,6 @@
   safe('reproductor', setupPlayer);
   safe('fondos', startBackgrounds);
   safe('estadísticas', startStats);   // la consulta a Discord sale en cuanto carga la página
+  setTimeout(() => safe('paneles', prebuildPanels), 2600);   // después de la animación de entrada
   document.documentElement.classList.add('js-ready');
 })();

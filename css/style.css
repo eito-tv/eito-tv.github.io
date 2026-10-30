@@ -9,9 +9,14 @@
    ========================================================= */
 
 /* ---------- 1. Variables ---------- */
-/* Tipografía gótica inspirada en el logo (Grenze Gotisch · licencia SIL OFL, archivo local). */
-@font-face{font-family:"Grenze Gotisch";src:url("../assets/fuentes/grenze-gotisch-latin-600-normal.woff2") format("woff2");font-weight:600;font-display:swap}
-@font-face{font-family:"Grenze Gotisch";src:url("../assets/fuentes/grenze-gotisch-latin-800-normal.woff2") format("woff2");font-weight:800;font-display:swap}
+/* Tipografía gótica inspirada en el logo (Grenze Gotisch · licencia SIL OFL).
+   Las fuentes van incrustadas aquí para que también se vean al abrir index.html con doble clic
+   (los archivos originales están en assets/fuentes/). */
+@font-face{font-family:"Grenze Gotisch";src:url("data:font/woff2;base64,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") format("woff2");font-weight:600;font-display:swap}
+/* Nombre central EITO: Rubik Black (900) · licencia SIL OFL. Es la misma forma ancha y gruesa
+   que tenía Rubik Distressed, pero con relleno limpio (sin grietas ni manchas).
+   Recortada a las letras E, I, T, O (1.4 KB). */
+@font-face{font-family:"EITO Rubik";src:url("data:font/woff2;base64,d09GMgABAAAAAAWEABAAAAAACqwAAAUpAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgjYcOgZgP1NUQVREAHwRCAqHTIYPCxgAATYCJAMsBCAFhDYHIAwHG78IyMSg77Kv7pnVdMAJNAF1ZMSNsDl59s67ZyD4uwei73+t1ZuT1wVtelYa1LbMrs+Zf8y0aWg0ElQeTdQamZIIjZCxsk0WMamFIHY1mX+7ggCwgZ6gIArpk6sCEmKQBTpg0IgCeLbXTu6EHcQ20r9CUjUQIG0NEzuhV/noMBEG6EHxGBIIqIQNUrkTu2HBSnTwo/wnLMn/YS7mh1DwL+/JLMj/6j+OsZD/SGsu6DkL0IBCjEAr4jrrRWghoFQD3co9hHYjhQL5CNLrTyHyb6Dn32vFBv7NBctNQxo01wmqnVhrhFI3Y2I7lOYG40Qol5AUacyl4+As0jPCQmgyqYWWuIdnG5AqJJA0iiN2I8J0G0q5dMCo0aMG4jYUXBIOca2QJUaQt4r2h1NO9fQ6SCEiESOXRBdUMa2pefJiG1om17YTcuCCXIwSw7AeEjWD6ISFjwYHEvojD2ZmEc3PkeEAAVooGIihGI0CNKAFJkzGJWqTH7sR/4pf51f4eX6a7+Y7+Ga+no+fazJfIajkHPaSgYGsOijNAwAyp7VBFIgSjVDlKfzPNoIQ5CC7eEYwBwfZKdqh0EJ0ZmZrhVaVjLaa5lk2zLKRaMybmL11A6Cul2xgW0hsYCB+Ya2lt7dop9mvr6+PWXt6Cneo3t3d3UXWW367zL5bTx6VLJePu29XfXbc6LWuIFk2EjJ8WKL9q4nZTGRhsm1VFeqWA8y6aZPbJv1Yl823u7vLGDFvPShZ9m/GUOIicABP1agmxi8qbavZy7pFdb/jLr9NZnnnTsmy3Xu96rpjh62lt5cQ2ce6S2PUSlCPDHjtYsvLu8R87xWzvrgD9fbzhsmyPEuWv0kO3ZY+5e/tj9zWkRkYxzhbrAKBFYmoXBnqfBTLuUn7cgvP8+zbMdFgXJtZMF0o0VdIQvH4GetyjcZ1uQUzaLFnhbtQUjB9bWbtXf+pBs8Cdxb4o+yKQKYvkDwa8R3j7OlBXd0je4Z5gYNP9R+FdMOCrepyKhJSOGjK3MxC45xhWTOH+TLOIgilLq0+dtoFSwcsPW9zQ3pmoGJ+fIPSMXoMka3etrbeVhlDGGdvGWfnGEfgRA7UGbLniHcx5Bkq5sT3qxOHaOM14tDBxjnxxcXgcHlxqGu8LA7pVzcnvnyXz2snuxQ7h7c+3h87KLs6fQjTkK6QvMpx80ePERi9D3Aqsm/unsvcTrdhcrm6QL4P9p8L+a06JLTqt5DQz6pCQ6o/w/N5GB3xYl9e/shq+6zf9ILwpdCID/f/8Ft23MmsfB7037fabrEagPbp5XsIb4pNa6/xoP/2arufuQ9g9BLG0G1IJV1IpZ8jiO6FIzXBm/RHNJ0PX4o4w1VUkmHw6NmZ4T50OPC+HOd7xK+LtvGZ1MS3SvFOQisbgYxvbRR2eG8TEIWzc0W2TYMMTLdpIcOYZ4cURGlkHo8i2nSQICf0sNEEqAb1MGAcTOhALToxFJNV13a0oA79oJa1ofhNlWhCs4ZR/8nowiRkIFY9bBLqMBEt6MJkTEIM/roF7YiBCRPRhFiMxiCMwDhMgREtaEP0mFBEE7mDJnwHLpuAGCQiDnHIRBMaMRkmmNAudi9HHGKQzppfybU1ozAaozAQmTPAONaEKc25E9n5lc79YUIXZpAQKOJKfhuHeCRDQQGa0QClX/8xmAgTWtEgISfLx5QLg5TXngQFYReJNaGFif1ZDOouNx5BemqTyBrQeAnwEpbGYuI8FP6VKTRW5ReQ8DPoeJnwRafFFQA=") format("woff2");font-weight:900;font-display:swap}
 @property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
 :root{
   --bg:#05070d;--text:#f4f7fd;--muted:#a5b4c5;--dim:#7d8fa3;
@@ -26,14 +31,15 @@
   --radius:16px;--content:min(1180px,calc(100% - 40px));--nav-h:60px;
 }
 /* Colores de marca: --c (principal) y --g (degradado del borde al pasar el cursor). */
-.youtube{--c:#ff0033;--c2:#ff5a6a;--g:conic-gradient(from var(--a),#ff0033,#ff7a7a,#ffffff,#ff0033,#b30024,#ff0033)}
-.discord{--c:#5865f2;--c2:#8b95ff;--g:conic-gradient(from var(--a),#5865f2,#8b95ff,#ffffff,#5865f2,#3b44c4,#5865f2)}
-.tiktok{--c:#25f4ee;--c2:#fe2c55;--g:conic-gradient(from var(--a),#25f4ee,#ffffff,#fe2c55,#25f4ee,#fe2c55,#25f4ee)}
-.steam{--c:#66c0f4;--c2:#1b8ad3;--g:conic-gradient(from var(--a),#66c0f4,#c7d5e0,#1b2838,#66c0f4,#1b8ad3,#66c0f4)}
-.instagram{--c:#e1306c;--c2:#f77737;--g:conic-gradient(from var(--a),#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5,#feda75)}
-.xbox{--c:#2bd65a;--c2:#107c10;--g:conic-gradient(from var(--a),#2bd65a,#9bf0a5,#107c10,#2bd65a,#0b5e0b,#2bd65a)}
-.twitch{--c:#9146ff;--c2:#bf94ff;--g:conic-gradient(from var(--a),#9146ff,#bf94ff,#ffffff,#9146ff,#5c16c5,#9146ff)}
-.playstation{--c:#2f8cff;--c2:#00439c;--g:conic-gradient(from var(--a),#2f8cff,#9cc9ff,#00439c,#2f8cff,#ffffff,#2f8cff)}
+.youtube{--c:#ff0033;--c2:#ff5a6a;--g:conic-gradient(#ff0033,#ff7a7a,#ffffff,#ff0033,#b30024,#ff0033)}
+.discord{--c:#5865f2;--c2:#8b95ff;--g:conic-gradient(#5865f2,#8b95ff,#ffffff,#5865f2,#3b44c4,#5865f2)}
+.tiktok{--c:#25f4ee;--c2:#fe2c55;--g:conic-gradient(#25f4ee,#ffffff,#fe2c55,#25f4ee,#fe2c55,#25f4ee)}
+.steam{--c:#66c0f4;--c2:#1b8ad3;--g:conic-gradient(#66c0f4,#c7d5e0,#1b2838,#66c0f4,#1b8ad3,#66c0f4)}
+.instagram{--c:#e1306c;--c2:#f77737;--g:conic-gradient(#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5,#feda75)}
+.xbox{--c:#2bd65a;--c2:#107c10;--g:conic-gradient(#2bd65a,#9bf0a5,#107c10,#2bd65a,#0b5e0b,#2bd65a)}
+.twitch{--c:#9146ff;--c2:#bf94ff;--g:conic-gradient(#9146ff,#bf94ff,#ffffff,#9146ff,#5c16c5,#9146ff)}
+.github{--c:#c9d1d9;--c2:#6e7681;--g:conic-gradient(#c9d1d9,#6e7681,#ffffff,#3fb950,#c9d1d9)}
+.playstation{--c:#2f8cff;--c2:#00439c;--g:conic-gradient(#2f8cff,#9cc9ff,#00439c,#2f8cff,#ffffff,#2f8cff)}
 
 /* ---------- 2. Base ---------- */
 *{box-sizing:border-box}
@@ -48,16 +54,19 @@ a{color:inherit}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 12px 34px rgba(0,0,0,.35)}
 .section-title{display:flex;align-items:center;gap:12px;margin:0 4px 12px;color:#e6eefb;font-size:12px;font-weight:900;letter-spacing:2.4px;text-shadow:0 2px 8px #000}
 .section-title i{height:1px;flex:1;background:linear-gradient(90deg,rgba(255,42,61,.6),rgba(0,220,255,.3),transparent)}
-.stats-updated{margin:-6px 4px 10px;color:#b4c3d3;font-size:11px;text-shadow:0 1px 6px #000}
 
 /* ---------- 3. Fondos (carrusel, sin desenfoque) ---------- */
 .backdrop{position:fixed;inset:0;z-index:0;background:#05070d;overflow:hidden}
 .bg-layer{--dim:0;position:absolute;inset:-1%;background:center/cover no-repeat;opacity:0;z-index:0;
-  filter:brightness(calc(.8 - var(--dim))) saturate(.96) contrast(1.06);will-change:opacity,transform;backface-visibility:hidden}
+  will-change:opacity,transform;backface-visibility:hidden}
+/* Rendimiento: antes se aplicaba un filtro de brillo a toda la pantalla en cada cuadro del
+   acercamiento; ahora es una capa negra semitransparente (mismo resultado, casi sin costo). */
+.bg-layer::after{content:"";position:absolute;inset:0;background:#000;opacity:calc(.2 + var(--dim));pointer-events:none}
 /* Capa nueva: aparece por encima con un fundido y un acercamiento muy lento (efecto cine). */
 .bg-layer.on{z-index:2;opacity:1;animation:bg-in var(--bg-fade,1.2s) ease-in-out both,bg-drift var(--bg-life,3.2s) linear both}
 /* Capa anterior: sigue visible debajo hasta que la nueva termina de aparecer. */
 .bg-layer.under{z-index:1;opacity:1}
+.bg-layer img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;user-select:none;pointer-events:none}
 @keyframes bg-in{from{opacity:0}to{opacity:1}}
 @keyframes bg-drift{from{transform:scale(1.045)}to{transform:scale(1)}}
 /* Solo se oscurece lo justo para leer: arriba casi limpio, abajo más oscuro. */
@@ -85,16 +94,18 @@ a{color:inherit}
 .nav-links a:hover{color:#fff;background:rgba(255,255,255,.06)}
 /* Sección activa: letras con degradado RGB que fluye despacio (sin parpadeos). */
 .nav-links a.active{color:transparent;background-image:var(--rgb-text);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  text-shadow:none;filter:drop-shadow(0 0 .6px #000) drop-shadow(0 1px 1px #000) drop-shadow(0 0 1px rgba(0,0,0,.9));animation:rgb-flow 6s linear infinite}
+  text-shadow:none;filter:drop-shadow(0 1px 1px #000);animation:rgb-flow 6s linear infinite}   /* 1 sombra en vez de 3: se repinta en cada cuadro */
 .nav-links a.active:hover{background-color:transparent}
 @keyframes rgb-flow{from{background-position:0% 50%}to{background-position:300% 50%}}
 .nav-links a::after{content:"";position:absolute;left:14px;right:14px;bottom:2px;height:2px;border-radius:2px;background:var(--rgb-text);background-size:300% 100%;box-shadow:0 0 8px rgba(160,120,255,.6);
-  transform:scaleX(0);transition:transform .6s var(--ease-out);animation:rgb-flow 6s linear infinite}
-.nav-links a.active::after{transform:scaleX(1)}
+  transform:scaleX(0);transition:transform .6s var(--ease-out)}
+.nav-links a.active::after{transform:scaleX(1);animation:rgb-flow 6s linear infinite}   /* solo la activa se anima */
 .nav-links a.pulse{animation:nav-pulse 1.4s var(--ease)}
 .nav-links a.active.pulse{animation:rgb-flow 6s linear infinite}
 @keyframes nav-pulse{0%,100%{background-color:transparent}40%{background-color:rgba(255,255,255,.07)}}
-@media (min-width:701px){.topnav{backdrop-filter:blur(12px) saturate(1.2);-webkit-backdrop-filter:blur(12px) saturate(1.2)}}
+/* Rendimiento: sin "backdrop-filter". El fondo se mueve debajo cada 2 s y el desenfoque
+   se recalculaba en cada cuadro. Un fondo casi opaco se ve igual y cuesta casi nada. */
+@media (min-width:701px){.topnav{background:rgba(6,8,14,.9)}}
 
 /* ---------- 5. Perfil y aro RGB ---------- */
 .hero{text-align:center;padding-top:6px}
@@ -102,22 +113,34 @@ a{color:inherit}
 .viz{position:absolute;left:50%;top:50%;width:310px;height:310px;transform:translate(-50%,-50%);pointer-events:none}
 /* --bass, --mid y --tre (0 a 1) los calcula el analizador de audio real.
    Graves: tamaño y halo · Medios: color e intensidad · Agudos: brillo exterior. */
-.avatar-wrap{--bass:0;--mid:0;--tre:0}
-.ring-glow{position:absolute;inset:-14px;border-radius:50%;background:var(--rgb);filter:blur(18px);
-  opacity:calc(.32 + var(--bass) * .5 + var(--tre) * .2);transform:scale(calc(1 + var(--bass) * .08 + var(--tre) * .04));
-  animation:spin 3.2s linear infinite;pointer-events:none;transition:opacity .4s}
-/* Reposo: giro RGB continuo y claramente visible. Con música: además reacciona al sonido. */
-.rgb-ring{position:absolute;inset:0;border-radius:50%;background:var(--rgb);animation:spin 2.4s linear infinite;
-  transform:scale(calc(1 + var(--bass) * .05));
-  filter:saturate(calc(1.1 + var(--mid) * .7)) brightness(calc(1 + var(--mid) * .25 + var(--bass) * .15))}
-.rgb-ring::after{content:"";position:absolute;inset:4px;border-radius:50%;background:#05070d;box-shadow:inset 0 0 14px rgba(0,0,0,.95)}
+.avatar-wrap{--bass:0;--tre:0}
+/* Rendimiento: el halo y el aro solo giran (transform) y cambian opacidad/escala;
+   ya no cambian "filter" en cada cuadro (eso obligaba a repintarlos 60 veces por segundo). */
+.ring-glow{position:absolute;inset:-14px;border-radius:50%;background:var(--rgb);filter:blur(16px) saturate(1.35);
+  opacity:calc(.5 + var(--bass) * .4 + var(--tre) * .15);animation:spin var(--ring-time,1.5s) linear infinite;pointer-events:none;will-change:transform,opacity}
+/* Reposo: giro RGB rápido y continuo. Con música: además late con los graves. */
+.rgb-ring{position:absolute;inset:0;border-radius:50%;background:var(--rgb);animation:spin var(--ring-time,1.5s) linear infinite;
+  transform:scale(calc(1 + var(--bass) * .05));filter:saturate(1.3) brightness(1.08);will-change:transform}
+.rgb-ring::after{content:"";position:absolute;inset:5px;border-radius:50%;background:#05070d;box-shadow:inset 0 0 14px rgba(0,0,0,.95)}
 @keyframes spin{to{rotate:360deg}}
-.avatar{position:absolute;inset:6px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#0d0f18,#030409 72%)}
+.avatar{position:absolute;inset:7px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#0d0f18,#030409 72%)}
 /* El logo conserva su forma original: solo se escala (sin recortes ni deformación). */
 .avatar img{width:84%;height:84%;object-fit:contain;display:block;filter:drop-shadow(0 0 6px rgba(255,255,255,.18));
-  transform:scale(calc(1 + var(--bass) * .045));transition:transform .12s linear}
+  transform:scale(calc(1 + var(--bass) * .045));will-change:transform}
 .has-photo .avatar img{width:100%;height:100%;object-fit:cover}
-h1{margin:0;font-family:var(--gothic);font-size:60px;line-height:1;font-weight:800;letter-spacing:8px;text-indent:8px;text-shadow:0 0 2px #000,0 4px 24px rgba(0,0,0,.8)}
+/* Nombre central: letras gruesas, anchas y limpias (inspiradas en el logotipo de Left 4 Dead 2). */
+h1{margin:0;font-family:"EITO Rubik","Arial Black",Impact,sans-serif;font-size:78px;line-height:1;font-weight:900;letter-spacing:10px;text-indent:10px;color:#fff;
+  text-shadow:0 0 1px #000,0 3px 0 rgba(0,0,0,.55),0 6px 26px rgba(0,0,0,.85)}
+/* Letras EITO en RGB que fluye despacio. Misma fuente y forma: solo cambia el relleno.
+   Contorno negro (text-stroke), relieve (sombras escalonadas hacia abajo) y bloom moderado. */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  h1#profileName{color:transparent;-webkit-text-fill-color:transparent;background-image:var(--rgb-text);background-size:200% 100%;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:none;
+    filter:drop-shadow(0 3px 0 #000) drop-shadow(0 0 11px rgba(170,120,255,.4))}
+  /* steps(): el color avanza ~15 veces por segundo (a esta lentitud no se nota) y repinta 4 veces menos. */
+  h1#profileName.enter{animation:rise 1.2s var(--ease-out) var(--d,0ms) backwards,eito-flow 10s steps(150) infinite}
+}
+@keyframes eito-flow{from{background-position:0% 50%}to{background-position:200% 50%}}   /* 200 % = una vuelta exacta: sin saltos */
 .subtitle{margin:8px 0 0;font-size:16px;font-weight:600;color:#eef3fb;text-shadow:0 2px 12px #000}
 .game-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:18px auto 0;padding:0;list-style:none;max-width:900px}
 .game-chip{position:relative;overflow:hidden;display:grid;place-items:center;width:118px;height:62px;padding:10px 12px;border-radius:14px;cursor:pointer;
@@ -133,16 +156,35 @@ h1{margin:0;font-family:var(--gothic);font-size:60px;line-height:1;font-weight:8
 /* El logo de Minecraft es gris piedra con borde oscuro: un contorno claro sutil lo separa del fondo. */
 .game-chip[data-game="minecraft"] img,.tile-logo img[src*="minecraft"],.gd-logo img[src*="minecraft"]{filter:drop-shadow(0 0 1px rgba(255,255,255,.7)) drop-shadow(0 0 3px rgba(255,255,255,.25))}
 .game-chip.selected{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 22px color-mix(in srgb,var(--c) 50%,transparent)}
+/* Luces de Navidad (una vez al cargar): una capa de luz por botón que se enciende y se apaga
+   en orden. Solo cambia opacidad y escala → no provoca tirones. */
+.game-chips li{position:relative}
+.game-chips li::before{content:"";position:absolute;inset:-3px;border-radius:17px;pointer-events:none;z-index:2;opacity:0;
+  box-shadow:0 0 0 2px var(--xc,#fff),0 0 18px 2px var(--xc,#fff),inset 0 0 16px color-mix(in srgb,var(--xc,#fff) 55%,transparent);
+  background:radial-gradient(70% 80% at 50% 40%,color-mix(in srgb,var(--xc,#fff) 28%,transparent),transparent 75%)}
+.game-chips.lights li::before{animation:xmas 1.05s var(--ease) calc(var(--k,0) * 230ms) 1 both}
+@keyframes xmas{0%{opacity:0;transform:scale(.96)}22%{opacity:1;transform:scale(1.04)}45%{opacity:.85;transform:scale(1)}100%{opacity:0;transform:scale(1)}}
+/* Color propio de cada juego (config.js › games › chipColor): borde discreto y luz suave
+   de ese color. Sin RGB giratorio. Al pasar el ratón (o al tocar en celular) el color se intensifica. */
+.game-chip{border-color:color-mix(in srgb,var(--c) 45%,rgba(255,255,255,.06));
+  background:radial-gradient(120% 90% at 50% 120%,color-mix(in srgb,var(--c) 22%,transparent),transparent 70%),linear-gradient(180deg,rgba(14,18,30,.86),rgba(6,8,15,.92));
+  box-shadow:0 8px 18px rgba(0,0,0,.4),0 0 14px -4px color-mix(in srgb,var(--c) 55%,transparent),inset 0 1px 0 color-mix(in srgb,var(--c) 25%,transparent)}
+.game-chip:hover,.game-chip:active{border-color:color-mix(in srgb,var(--c) 85%,#fff);
+  box-shadow:0 12px 24px rgba(0,0,0,.45),0 0 20px -2px color-mix(in srgb,var(--c) 70%,transparent),inset 0 1px 0 color-mix(in srgb,var(--c) 40%,transparent)}
+.game-chip:active::after{opacity:1}
+@media (hover:none){.game-chip:hover{transform:none}.game-chip:active{transform:scale(.97)}}
 
 /* ---------- 6. Reproductor propio ---------- */
 .center-stack{max-width:640px;margin:22px auto 0;display:grid;gap:12px}
-.player{position:relative;display:grid;grid-template-columns:92px minmax(0,1fr) auto;align-items:center;gap:16px;padding:14px 16px;overflow:hidden;
-  background:linear-gradient(115deg,rgba(26,10,40,.78),var(--panel-2) 48%)}
-/* Borde RGB fino que gira despacio (más visible mientras suena). */
-.player::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:conic-gradient(from var(--a),#ff1744,#ffe600,#00f5ff,#8a2bff,#ff00b8,#ff1744);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.45;animation:hue-turn 8s linear infinite;transition:opacity .8s var(--ease)}
-.music-on .player::before{opacity:.9}
-.cover{position:relative;width:92px;height:92px;border-radius:12px}
+.player{position:relative;isolation:isolate;display:grid;grid-template-columns:92px minmax(0,1fr);grid-template-areas:"cover body" "cover ctl";align-items:center;gap:8px 16px;padding:14px 16px;overflow:hidden;
+  background:none;border-color:transparent}
+/* Borde RGB: un degradado grande que GIRA (transform, sin repintar) detrás de un relleno
+   oscuro separado 1 px del borde. Más visible mientras suena. */
+.player::before{content:"";position:absolute;z-index:-2;left:50%;top:50%;width:150%;aspect-ratio:1;translate:-50% -50%;pointer-events:none;
+  background:conic-gradient(#ff1744,#ffe600,#00f5ff,#8a2bff,#ff00b8,#ff1744);opacity:.5;animation:spin 8s linear infinite;transition:opacity .8s var(--ease);will-change:transform}
+.player::after{content:"";position:absolute;z-index:-1;inset:1px;border-radius:calc(var(--radius) - 1px);pointer-events:none;background:linear-gradient(115deg,#170a26 0%,#0a0e1a 48%)}
+.music-on .player::before{opacity:1}
+.cover{grid-area:cover;position:relative;width:92px;height:92px;border-radius:12px;align-self:start}
 .cover-art{position:relative;z-index:1;display:block;width:100%;height:100%;border-radius:12px;background:#07080d center/cover no-repeat;
   box-shadow:0 8px 20px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);opacity:0;transform:scale(.96);transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .cover-art.loaded,.cover-art.generic{opacity:1;transform:none}
@@ -150,66 +192,122 @@ h1{margin:0;font-family:var(--gothic);font-size:60px;line-height:1;font-weight:8
 .music-on .cover-glow{opacity:.5;animation:spin 6s linear infinite}
 .cover-art.generic{background:radial-gradient(circle at 30% 30%,rgba(255,42,61,.7),transparent 55%),radial-gradient(circle at 75% 75%,rgba(120,40,255,.7),transparent 55%),#14060c}
 .cover-art.generic::after{content:"♪";position:absolute;inset:0;display:grid;place-items:center;font-size:30px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.5)}
-.player-body{min-width:0}
+.player-body{grid-area:body;min-width:0}
 .player-top{display:flex;align-items:center;gap:12px}
 .track{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
 .track b{font-size:17px;font-weight:900;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.track-sub{display:flex;align-items:center;gap:8px;min-width:0;font-size:12.5px;color:var(--muted)}
-.track-sub > span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.track-sub .unknown{font-style:italic;color:#8796a8}
-.track-tag{flex:0 0 auto;font-style:normal;font-size:9.5px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:20px;color:#ffe08a;background:rgba(255,190,40,.1);border:1px solid rgba(255,200,60,.35)}
+.track-sub{display:block;min-width:0;font-size:13px;color:#c9d4e2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Indicador de reproducción: con análisis real lo mueven las bandas del audio (JS). */
 .eq{display:flex;align-items:flex-end;gap:3px;height:18px;opacity:.35;transition:opacity .5s}
 .eq i{width:3px;height:100%;border-radius:2px;background:linear-gradient(180deg,#ff5ad1,#7b5cff 60%,#22e6ff);transform:scaleY(.18);transform-origin:bottom;transition:transform .08s linear}
-.music-on .eq{opacity:1}
+.music-on .eq{opacity:1;animation:eq-rgb 4s linear infinite}
+/* Barras del mini-espectro en RGB: el tono gira mientras suena (la altura sigue saliendo del audio real). */
+@keyframes eq-rgb{to{filter:hue-rotate(360deg)}}
+.eq i{box-shadow:0 0 6px rgba(160,110,255,.55)}
 .progress-row{display:flex;align-items:center;gap:9px;margin-top:10px}
 .time{font-size:11px;color:#b9c6d6;font-variant-numeric:tabular-nums;min-width:32px}
 .time:last-child{text-align:right}
-/* Barras de progreso y volumen con relleno RGB. */
-#seek,#vol{--p:0%;-webkit-appearance:none;appearance:none;height:16px;background:transparent;cursor:pointer;margin:0}
-#seek{flex:1;min-width:0}
-#seek::-webkit-slider-runnable-track,#vol::-webkit-slider-runnable-track{height:5px;border-radius:5px;background:linear-gradient(90deg,#ff3b5c,#b04dff,#22e6ff) 0 0/var(--p) 100% no-repeat,rgba(255,255,255,.14)}
-#seek::-moz-range-track,#vol::-moz-range-track{height:5px;border-radius:5px;background:rgba(255,255,255,.14)}
-#seek::-moz-range-progress,#vol::-moz-range-progress{height:5px;border-radius:5px;background:linear-gradient(90deg,#ff3b5c,#b04dff,#22e6ff)}
-#seek::-webkit-slider-thumb,#vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;margin-top:-4px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(176,77,255,.35),0 2px 6px rgba(0,0,0,.5)}
-#seek::-moz-range-thumb,#vol::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(176,77,255,.35)}
-#seek:disabled{opacity:.45;cursor:default}
-.player-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
-.vol-row{display:flex;align-items:center;gap:7px;color:#c9d4e2}
-.vol-row svg{width:17px;height:17px;fill:currentColor}
-#vol{width:110px}
-.viz-mode{flex:0 0 auto;font-size:10px;font-weight:800;letter-spacing:.4px;color:#cdb6ff;padding:3px 8px;border-radius:20px;background:rgba(150,90,255,.12);border:1px solid rgba(160,110,255,.35)}
-.viz-mode.off{color:#9fb0c3;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14)}
+/* Barra de progreso: el relleno es un degradado RGB que se MUEVE solo (independiente del
+   tiempo de la canción). Encima va un control nativo transparente para arrastrar con ratón o dedo. */
+.seek-wrap{--p:0;position:relative;flex:1;min-width:0;height:22px;display:flex;align-items:center}
+.seek-track{position:absolute;left:0;right:0;height:6px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden}
+.seek-fill{position:absolute;inset:0;clip-path:inset(0 calc(100% - (var(--p) * (100% - 14px) + 7px)) 0 0 round 6px)}
+.seek-rgb{position:absolute;top:0;bottom:0;left:0;width:300%;will-change:transform;
+  background:linear-gradient(90deg,#ff2d55,#ff9500,#ffe100,#34ff6a,#00e5ff,#7b5cff,#ff3bd4,#ff2d55,#ff9500,#ffe100,#34ff6a,#00e5ff,#7b5cff,#ff3bd4,#ff2d55);
+  animation:rgb-slide 4s linear infinite}
+@keyframes rgb-slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+#seek{position:relative;z-index:1;width:100%;height:22px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;touch-action:none}
+#seek::-webkit-slider-runnable-track{height:22px;background:transparent}
+#seek::-moz-range-track{height:22px;background:transparent}
+#seek::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:4px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(176,77,255,.4),0 2px 6px rgba(0,0,0,.5)}
+#seek::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(176,77,255,.4)}
+#seek:disabled{cursor:default}
+#seek:disabled::-webkit-slider-thumb{opacity:.4}
+/* Colores RGB compartidos por el botón de reproducir y el volumen (mismo lenguaje visual). */
+:root{--btn-rgb:conic-gradient(#ff2d55,#ff9500,#ffe100,#34ff6a,#00e5ff,#3d7bff,#b44dff,#ff3bd4,#ff2d55);--btn-rgb-time:3s}
+/* Volumen: píldora con borde RGB que gira (transform, sin repintar) y barra de nivel RGB
+   que se mueve sola, igual que la de progreso. El control nativo va encima, transparente. */
+.vol-row{--v:.5;position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 12px 6px 10px;border-radius:30px;color:#eef2f8;
+  box-shadow:0 0 14px rgba(150,90,255,.28)}
+.vol-row::before{content:"";position:absolute;z-index:-2;left:50%;top:50%;width:150%;aspect-ratio:1;translate:-50% -50%;background:var(--btn-rgb);animation:spin var(--btn-rgb-time) linear infinite;will-change:transform;pointer-events:none}
+.vol-row::after{content:"";position:absolute;z-index:-1;inset:1.5px;border-radius:30px;background:linear-gradient(180deg,#151827,#0b0d18);pointer-events:none}
+.vol-row svg{width:19px;height:19px;fill:currentColor;flex:0 0 auto}
+.vol-row .vol-waves{transition:opacity .3s}
+.vol-row.muted .vol-waves{opacity:.15}
+.vol-track{position:relative;width:100px;height:24px;display:flex;align-items:center}
+.vol-bar{position:absolute;left:0;right:0;height:6px;border-radius:6px;background:rgba(255,255,255,.16);overflow:hidden}
+.vol-fill{position:absolute;inset:0;clip-path:inset(0 calc(100% - (var(--v) * (100% - 16px) + 8px)) 0 0 round 6px)}
+.vol-rgb{position:absolute;top:0;bottom:0;left:0;width:300%;will-change:transform;
+  background:linear-gradient(90deg,#ff2d55,#ff9500,#ffe100,#34ff6a,#00e5ff,#7b5cff,#ff3bd4,#ff2d55,#ff9500,#ffe100,#34ff6a,#00e5ff,#7b5cff,#ff3bd4,#ff2d55);
+  animation:rgb-slide 4s linear infinite}
+#vol{position:relative;z-index:1;width:100%;height:24px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;touch-action:none}
+#vol::-webkit-slider-runnable-track{height:24px;background:transparent}
+#vol::-moz-range-track{height:24px;background:transparent}
+#vol::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:4px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(176,77,255,.45),0 2px 6px rgba(0,0,0,.5)}
+#vol::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(176,77,255,.45)}
+#vol:focus-visible{outline:none}
+.vol-row:focus-within{box-shadow:0 0 0 2px rgba(255,107,120,.8),0 0 14px rgba(150,90,255,.28)}
+/* Indicador del espectro: mismo aspecto que en la versión anterior (píldora pequeña bajo la barra,
+   a la derecha). El color cambia según lo que pasa de verdad. */
+.player-foot{display:flex;align-items:center;justify-content:flex-end;min-height:20px;margin-top:6px}
+.viz-mode{flex:0 0 auto;font-size:10px;font-weight:800;letter-spacing:.4px;padding:3px 8px;border-radius:20px;white-space:nowrap;
+  color:#9fb0c3;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);transition:color .4s,background .4s,border-color .4s}
+.viz-mode[data-state="on"]{color:#cdb6ff;background:rgba(150,90,255,.12);border-color:rgba(160,110,255,.35)}
+.viz-mode[data-state="wait"]{color:#bcd6ff;background:rgba(80,140,255,.1);border-color:rgba(110,160,255,.35)}
+.viz-mode[data-state="nosignal"]{color:#ffd28a;background:rgba(255,180,60,.08);border-color:rgba(255,190,80,.35)}
+.viz-mode[data-state="error"]{color:#ffb4bd;background:rgba(255,80,100,.08);border-color:rgba(255,110,130,.38)}
 .player-msg{margin:6px 0 0;font-size:11.5px;color:#b9c6d6;line-height:1.4}
 .player-msg:empty{display:none}
 .player[data-state="error"] .player-msg{color:#ffb4bd}
-.controls{display:flex;align-items:center;gap:8px}
+.controls{grid-area:ctl;display:flex;align-items:center;gap:10px;min-width:0}
 .ctl-btn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);cursor:pointer;display:grid;place-items:center;
   transition:background .4s var(--ease),border-color .4s,transform .14s var(--ease)}
 .ctl-btn svg{width:18px;height:18px;fill:#e8edf6}
 .ctl-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3)}
 .ctl-btn:disabled{opacity:.35;cursor:default}
-.play-btn{position:relative;overflow:hidden;width:56px;height:56px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;
-  background:radial-gradient(circle at 35% 30%,#ffffff,#e6e9f2);box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 0 4px rgba(255,255,255,.06);transition:box-shadow .6s var(--ease),transform .14s var(--ease)}
-.play-btn svg{width:24px;height:24px;fill:#0a0d14}
+/* Botón principal con RGB animado en los dos estados:
+   - En pausa: centro blanco con ▶ oscuro, aro RGB fino que gira y resplandor suave.
+   - Sonando: centro oscuro con ❚❚ blanco, aro RGB más grueso y resplandor más intenso.
+   Todo gira con transform (sin repintar) y a la misma velocidad que el volumen. */
+.play-wrap{position:relative;display:grid;place-items:center;flex:0 0 auto}
+.play-glow{position:absolute;inset:-7px;border-radius:50%;background:var(--btn-rgb);filter:blur(9px);opacity:.42;pointer-events:none;
+  animation:spin var(--btn-rgb-time) linear infinite;will-change:transform;transition:opacity .5s var(--ease)}
+.music-on .play-glow{opacity:.85}
+.play-btn{position:relative;isolation:isolate;overflow:hidden;flex:0 0 auto;width:54px;height:54px;border-radius:50%;border:0;cursor:pointer;display:grid;place-items:center;
+  background:#0b0d18;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:box-shadow .6s var(--ease),transform .14s var(--ease)}
+.play-btn svg{position:relative;z-index:1;width:24px;height:24px;fill:#0a0d14;transition:fill .3s}
 .play-btn .i-pause,.play-btn.is-playing .i-play{display:none}
 .play-btn.is-playing .i-pause{display:block}
-.play-btn.is-playing{box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 0 4px rgba(176,77,255,.28),0 0 24px rgba(120,90,255,.4)}
+.play-ring{position:absolute;inset:0;z-index:-1;border-radius:50%}
+.play-ring::before{content:"";position:absolute;inset:-20%;background:var(--btn-rgb);animation:spin var(--btn-rgb-time) linear infinite;will-change:transform}
+.play-ring::after{content:"";position:absolute;inset:2.5px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff,#e4e8f1)}
+.play-btn.is-playing{box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 18px rgba(150,90,255,.4)}
+.play-btn.is-playing .play-ring::after{inset:3.5px;background:radial-gradient(circle at 35% 30%,#2a1846,#0b0d18)}
+.play-btn.is-playing svg{fill:#fff}
 .play-btn:disabled{filter:grayscale(1);opacity:.5;cursor:default}
-.spinner{position:absolute;inset:4px;border-radius:50%;border:2px solid transparent;border-top-color:#8a5cff;opacity:0;transition:opacity .3s}
+.spinner{position:absolute;z-index:2;inset:4px;border-radius:50%;border:2px solid transparent;border-top-color:#8a5cff;opacity:0;transition:opacity .3s}
 .player[data-state="loading"] .spinner{opacity:1;animation:spin .9s linear infinite}
 
 /* ---------- 7. Discord ---------- */
 .discord-hub{position:relative;border-radius:var(--radius)}
 .hub-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px;align-items:stretch}
-.hub-stats{display:flex;align-items:center;justify-content:space-around;gap:10px;padding:10px 14px;background:var(--panel-2)}
+.hub-stats{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:10px 14px 8px;background:var(--panel-2)}
+.hub-nums{display:flex;align-items:center;justify-content:space-around;gap:10px}
+/* Leyenda bajo los contadores: dice honestamente de dónde vienen las cifras. */
+.hub-live{display:flex;align-items:center;justify-content:center;gap:6px;margin:0;font-size:10.5px;font-weight:700;letter-spacing:.3px;color:#9fe9bf}
+.hub-live i{position:relative;width:6px;height:6px;border-radius:50%;background:#3ddc84;flex:0 0 auto}
+.hub-live[data-state="live"] i::after{content:"";position:absolute;inset:0;border-radius:50%;background:#3ddc84;animation:ping 2s ease-out infinite}
+.hub-live[data-state="loading"]{color:#b4c3d3}.hub-live[data-state="loading"] i{background:#8fa3b8}
+.hub-live[data-state="stale"]{color:#ffd28a}.hub-live[data-state="stale"] i{background:#ffb648}
+.hub-live[data-state="error"]{color:#ffb4bd}.hub-live[data-state="error"] i{background:#ff5a6a}
+@keyframes ping{0%{transform:scale(1);opacity:.7}80%,100%{transform:scale(3);opacity:0}}
 .hub-stat{display:flex;align-items:center;gap:10px;min-width:0}
 .hub-stat b{display:block;font-size:22px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
 .hub-stat span{display:block;font-size:11.5px;color:var(--muted)}
 .hub-stat.online span{color:#5df29a}
 .hub-stat.online{position:relative}
-.live-dot{position:absolute;left:19px;top:-2px;width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 0 rgba(61,220,132,.6);animation:live 2.4s ease-out infinite}
-@keyframes live{0%{box-shadow:0 0 0 0 rgba(61,220,132,.55)}70%{box-shadow:0 0 0 9px rgba(61,220,132,0)}100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}}
+.live-dot{position:absolute;left:19px;top:-2px;width:8px;height:8px;border-radius:50%;background:#3ddc84}
+.live-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:#3ddc84;animation:ping 2.4s ease-out infinite}
 .hub-stat.settled b{animation:settle .6s var(--ease-out)}
 @keyframes settle{0%{text-shadow:0 0 0 transparent}40%{text-shadow:0 0 16px rgba(160,170,255,.8)}100%{text-shadow:0 0 0 transparent}}
 .hub-ico{width:30px;height:30px;fill:#7c8bff;filter:drop-shadow(0 0 6px rgba(88,101,242,.5))}
@@ -223,12 +321,15 @@ h1{margin:0;font-family:var(--gothic);font-size:60px;line-height:1;font-weight:8
 #comunidad:has(.hub-stats[data-state="error"]) .hub-note{color:#ffc2c8}
 .hub-retry{margin-left:6px;padding:3px 10px;border-radius:20px;border:1px solid rgba(160,170,255,.55);background:rgba(88,101,242,.18);color:#e8ebff;font-size:11px;font-weight:800;cursor:pointer}
 .hub-retry:hover{background:rgba(88,101,242,.32)}
-/* Mientras cuenta, los números no cambian de ancho (no "bailan"). */
-.hub-stat b{min-width:3.2ch}
+/* Mientras cuenta, los números no cambian de ancho (no "bailan") y el cambio de texto
+   no obliga a recalcular el resto de la página. */
+.hub-stat b{min-width:5ch;contain:layout style}
 .emerald{width:26px;height:26px;flex:0 0 auto;image-rendering:pixelated;
   background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'><rect x='2' y='0' width='1' height='1' fill='%230b7a35'/><rect x='3' y='0' width='1' height='1' fill='%230b7a35'/><rect x='4' y='0' width='1' height='1' fill='%230b7a35'/><rect x='5' y='0' width='1' height='1' fill='%230b7a35'/><rect x='1' y='1' width='1' height='1' fill='%230b7a35'/><rect x='2' y='1' width='1' height='1' fill='%23b4ffd0'/><rect x='3' y='1' width='1' height='1' fill='%2318dd63'/><rect x='4' y='1' width='1' height='1' fill='%2318dd63'/><rect x='5' y='1' width='1' height='1' fill='%230fae4c'/><rect x='6' y='1' width='1' height='1' fill='%230b7a35'/><rect x='0' y='2' width='1' height='1' fill='%230b7a35'/><rect x='1' y='2' width='1' height='1' fill='%23b4ffd0'/><rect x='2' y='2' width='1' height='1' fill='%23b4ffd0'/><rect x='3' y='2' width='1' height='1' fill='%2318dd63'/><rect x='4' y='2' width='1' height='1' fill='%2318dd63'/><rect x='5' y='2' width='1' height='1' fill='%2318dd63'/><rect x='6' y='2' width='1' height='1' fill='%230fae4c'/><rect x='7' y='2' width='1' height='1' fill='%230b7a35'/><rect x='0' y='3' width='1' height='1' fill='%230b7a35'/><rect x='1' y='3' width='1' height='1' fill='%23b4ffd0'/><rect x='2' y='3' width='1' height='1' fill='%2318dd63'/><rect x='3' y='3' width='1' height='1' fill='%2318dd63'/><rect x='4' y='3' width='1' height='1' fill='%2318dd63'/><rect x='5' y='3' width='1' height='1' fill='%2318dd63'/><rect x='6' y='3' width='1' height='1' fill='%230fae4c'/><rect x='7' y='3' width='1' height='1' fill='%230b7a35'/><rect x='0' y='4' width='1' height='1' fill='%230b7a35'/><rect x='1' y='4' width='1' height='1' fill='%2318dd63'/><rect x='2' y='4' width='1' height='1' fill='%2318dd63'/><rect x='3' y='4' width='1' height='1' fill='%2318dd63'/><rect x='4' y='4' width='1' height='1' fill='%2318dd63'/><rect x='5' y='4' width='1' height='1' fill='%230fae4c'/><rect x='6' y='4' width='1' height='1' fill='%230fae4c'/><rect x='7' y='4' width='1' height='1' fill='%230b7a35'/><rect x='0' y='5' width='1' height='1' fill='%230b7a35'/><rect x='1' y='5' width='1' height='1' fill='%230fae4c'/><rect x='2' y='5' width='1' height='1' fill='%2318dd63'/><rect x='3' y='5' width='1' height='1' fill='%2318dd63'/><rect x='4' y='5' width='1' height='1' fill='%230fae4c'/><rect x='5' y='5' width='1' height='1' fill='%230fae4c'/><rect x='6' y='5' width='1' height='1' fill='%230fae4c'/><rect x='7' y='5' width='1' height='1' fill='%230b7a35'/><rect x='1' y='6' width='1' height='1' fill='%230b7a35'/><rect x='2' y='6' width='1' height='1' fill='%230fae4c'/><rect x='3' y='6' width='1' height='1' fill='%230fae4c'/><rect x='4' y='6' width='1' height='1' fill='%230fae4c'/><rect x='5' y='6' width='1' height='1' fill='%230fae4c'/><rect x='6' y='6' width='1' height='1' fill='%230b7a35'/><rect x='2' y='7' width='1' height='1' fill='%230b7a35'/><rect x='3' y='7' width='1' height='1' fill='%230b7a35'/><rect x='4' y='7' width='1' height='1' fill='%230b7a35'/><rect x='5' y='7' width='1' height='1' fill='%230b7a35'/></svg>") center/contain no-repeat;
-  filter:drop-shadow(0 0 5px rgba(23,221,98,.55));animation:emerald 3.2s ease-in-out infinite}
-@keyframes emerald{0%,100%{filter:drop-shadow(0 0 3px rgba(23,221,98,.4));transform:scale(1)}50%{filter:drop-shadow(0 0 10px rgba(23,221,98,.9));transform:scale(1.06)}}
+  position:relative;filter:drop-shadow(0 0 5px rgba(23,221,98,.55));animation:emerald 3.2s ease-in-out infinite}
+.emerald::after{content:"";position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle,rgba(23,221,98,.55),transparent 65%);opacity:.3;animation:emerald-glow 3.2s ease-in-out infinite}
+@keyframes emerald{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes emerald-glow{0%,100%{opacity:.25}50%{opacity:.9}}
 .join-btn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:62px;padding:12px 18px;border-radius:var(--radius);cursor:pointer;
   font-size:15px;font-weight:900;letter-spacing:1.4px;color:#fff;border:1px solid rgba(160,170,255,.55);
   background:linear-gradient(120deg,#5865f2 0%,#4b3fe0 45%,#7b3ff2 100%);background-size:160% 100%;background-position:0% 50%;
@@ -280,26 +381,25 @@ h1{margin:0;font-family:var(--gothic);font-size:60px;line-height:1;font-weight:8
 /* ---------- 8. Tarjetas de redes ---------- */
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start;margin-top:30px}
 .social-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
-.social-card{position:relative;isolation:isolate;border-radius:var(--radius);
-  background:linear-gradient(105deg,color-mix(in srgb,var(--c) 30%,#080b14) 0%,rgba(8,11,20,.9) 42%,rgba(8,11,20,.82) 100%);
-  border:1px solid color-mix(in srgb,var(--c) 55%,#1d2638);box-shadow:0 10px 26px rgba(0,0,0,.35);
-  transition:box-shadow .45s var(--ease),transform .45s var(--ease),border-color .45s var(--ease)}
-/* Brillo de luz diagonal del color de la marca. */
-.social-card::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
-  background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c2,var(--c)) 26%,transparent),transparent 55%),
-  repeating-linear-gradient(115deg,rgba(255,255,255,.025) 0 2px,transparent 2px 9px);opacity:.9}
-/* Borde RGB con los colores de la marca: aparece y gira despacio al pasar el cursor. */
-.social-card::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;pointer-events:none;background:var(--g,var(--rgb));
-  opacity:0;transition:opacity .5s var(--ease);animation:hue-turn 5s linear infinite paused;
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-@keyframes hue-turn{to{--a:360deg}}
-.social-card:hover,.social-card.open{box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 26px color-mix(in srgb,var(--c) 30%,transparent);border-color:transparent}
+.social-card{position:relative;isolation:isolate;overflow:hidden;border-radius:var(--radius);
+  background:color-mix(in srgb,var(--c) 55%,#1d2638);box-shadow:0 10px 26px rgba(0,0,0,.35);
+  transition:box-shadow .45s var(--ease),transform .45s var(--ease)}
+/* Relleno de la tarjeta (con el brillo diagonal del color de la marca), separado 1.5 px del borde. */
+.social-card::after{content:"";position:absolute;inset:1.5px;z-index:-1;border-radius:calc(var(--radius) - 1.5px);pointer-events:none;
+  background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c2,var(--c)) 24%,transparent),transparent 55%),
+  repeating-linear-gradient(115deg,rgba(255,255,255,.022) 0 2px,transparent 2px 9px),
+  linear-gradient(105deg,color-mix(in srgb,var(--c) 30%,#080b14) 0%,#080b14 42%,#0a0d17 100%)}
+/* Borde RGB con los colores de la marca: aparece y GIRA (transform) al pasar el cursor o al abrir.
+   Antes se animaba el ángulo del degradado, lo que repintaba la tarjeta en cada cuadro. */
+.social-card::before{content:"";position:absolute;z-index:-2;left:50%;top:50%;width:160%;aspect-ratio:1;translate:-50% -50%;pointer-events:none;background:var(--g,var(--rgb));
+  opacity:0;transition:opacity .5s var(--ease);animation:spin 5s linear infinite paused}
+.social-card:hover,.social-card.open{box-shadow:0 14px 34px rgba(0,0,0,.45),0 0 26px color-mix(in srgb,var(--c) 30%,transparent)}
 .social-card:hover::before,.social-card.open::before{opacity:1;animation-play-state:running}
 .social-card:hover{transform:translateY(-2px)}
 .social-card.open{transform:none}
 .social-card .expand-inner{padding:0 14px}
 .social-card.open .expand-inner{padding-bottom:14px}
-.sc-head{display:grid;grid-template-columns:54px minmax(0,1fr) 22px;gap:14px;align-items:center;width:100%;min-height:84px;padding:14px 16px;border:0;border-radius:var(--radius);background:none;cursor:pointer;text-align:left;
+.sc-head{display:grid;grid-template-columns:54px minmax(0,1fr) 22px;gap:12px;align-items:center;width:100%;min-height:84px;padding:14px 16px;border:0;border-radius:var(--radius);background:none;cursor:pointer;text-align:left;
   -webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background .35s var(--ease),transform .14s var(--ease)}
 .sc-head:active{transform:scale(.985);background:rgba(255,255,255,.04)}
 .sc-icon{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 14px color-mix(in srgb,var(--c) 40%,transparent);
@@ -318,11 +418,17 @@ h1{margin:0;font-family:var(--gothic);font-size:60px;line-height:1;font-weight:8
 .sc-text{display:block;min-width:0}
 .sc-name{display:block;font-size:16.5px;font-weight:900}
 .sc-user{display:block;margin-top:2px;font-size:13px;color:#d1dbe7;overflow-wrap:anywhere}
-.sc-stats{display:flex;flex-wrap:wrap;gap:3px 10px;margin-top:5px;font-size:12px;color:#bfccdb}
-.sc-stats b{color:#fff;font-weight:900;font-variant-numeric:tabular-nums}
-.stat{white-space:nowrap}
-.stat.manual b{color:#ffe08a}
-.stat-age,.stat-msg{color:var(--dim);font-size:11.5px}
+.github .sc-icon{background:linear-gradient(145deg,#2b3137,#0d1117);box-shadow:0 0 14px rgba(201,209,217,.25)}
+/* Dato de la tarjeta: entre la cuenta y la flecha (no reemplaza al usuario). */
+.has-stat .sc-head{grid-template-columns:54px minmax(0,1fr) auto 22px}
+.sc-stat{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;text-align:right;max-width:110px;line-height:1.1}
+.sc-stat b{font-size:19px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 0 12px color-mix(in srgb,var(--c) 45%,transparent)}
+/* Símbolo junto a la cifra: pequeño, de un solo color (el de la red) y más suave que el número. */
+.sc-num{display:inline-flex;align-items:center;gap:5px}
+.sc-sym{width:13px;height:13px;flex:none;fill:currentColor;color:color-mix(in srgb,var(--c) 65%,#fff);opacity:.85}
+.sc-stat.sym-only .sc-sym{width:17px;height:17px}
+.sc-stat small{margin-top:3px;font-size:10.5px;font-weight:700;color:color-mix(in srgb,var(--c) 45%,#c9d4e2)}
+.sc-stat.live b::after{content:"";display:inline-block;width:6px;height:6px;margin-left:5px;border-radius:50%;background:#3ddc84;vertical-align:4px}
 .chev{font-size:24px;color:#e6f0ff;transition:transform .45s var(--ease-out);justify-self:end}
 .social-card.open .sc-head .chev{transform:rotate(90deg)}
 
@@ -456,13 +562,40 @@ footer small{letter-spacing:.3px;font-size:9.5px;color:#6f8093}
   40%{box-shadow:0 0 0 2px color-mix(in srgb,var(--c,#a070ff) 70%,#fff),0 0 22px color-mix(in srgb,var(--c,#a070ff) 45%,transparent)}
   100%{box-shadow:0 0 0 0 rgba(170,120,255,0)}}
 /* Entrada progresiva: opacidad y un desplazamiento corto, lento y suave. */
-.enter{animation:rise 1.2s var(--ease-out) var(--d,0ms) backwards}
+/* Entrada progresiva (v11), en este orden: fondo → barra → logo → EITO → botones de juegos →
+   reproductor → estadísticas de Discord → botón de Discord → redes → recursos y lo demás.
+   Cada bloque sube desde abajo con un fundido lento; un leve cambio de escala da profundidad.
+   Solo opacidad y transform (los mueve la tarjeta gráfica) y nunca bloquea los clics. */
+.backdrop{animation:page-bg 1.6s ease-out both}
+.gold-stars{animation:page-bg 2s ease-out .5s both}
+@keyframes page-bg{from{opacity:0}to{opacity:1}}
+.enter{animation:rise 1.35s var(--ease-out) var(--d,0ms) backwards}
 .topnav.enter{animation-name:drop}
-@keyframes rise{from{opacity:0;transform:translateY(16px);filter:blur(5px)}60%{filter:blur(0)}to{opacity:1;transform:none;filter:none}}
-@keyframes drop{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
-.social-card{animation:rise 1.1s var(--ease-out) calc(1150ms + var(--i,0) * 60ms) backwards}
-.game-chip{animation:rise 1s var(--ease-out) calc(480ms + var(--i,0) * 55ms) backwards}
-.game-tile{animation:rise 1s var(--ease-out) calc(1550ms + var(--i,0) * 55ms) backwards}
+/* Rendimiento: sin desenfoque animado (en PC desenfocaba bloques enteros, como el reproductor
+   y las tarjetas, en cada cuadro de la entrada). Igual que en celular: opacidad y desplazamiento. */
+@keyframes rise{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translate(-50%,0)}}
+/* La sección de Discord entra en dos tiempos: primero las cifras y después el botón. */
+#comunidad.enter{animation:none}
+#comunidad .hub-stats{animation:rise 1.35s var(--ease-out) 1500ms backwards}
+#comunidad .join-btn{animation:rise 1.35s var(--ease-out) 1680ms backwards}
+.social-card{animation:rise 1.25s var(--ease-out) calc(1850ms + var(--i,0) * 70ms) backwards}
+.game-chip{animation:rise 1.2s var(--ease-out) calc(900ms + var(--i,0) * 70ms) backwards}
+.game-tile{animation:rise 1.1s var(--ease-out) calc(2500ms + var(--i,0) * 55ms) backwards}
+
+/* ---- Efectos de la barra de navegación (se repiten en cada pulsación) ---- */
+/* Recursos: cada botón se ilumina UNO DESPUÉS DE OTRO (retraso --fd), con un destello breve. */
+.seq-flash{animation:seq-flash .95s var(--ease) var(--fd,0ms) 1 both}
+@keyframes seq-flash{
+  0%{box-shadow:0 0 0 0 transparent;border-color:var(--line)}
+  35%{box-shadow:0 0 0 1px color-mix(in srgb,var(--c,#ff5a6a) 80%,#fff),0 0 18px color-mix(in srgb,var(--c,#ff5a6a) 50%,transparent);border-color:color-mix(in srgb,var(--c,#ff5a6a) 80%,#fff)}
+  100%{box-shadow:0 0 0 0 transparent}}
+/* Juegos: los botones se encienden en orden con el color de cada juego. */
+.game-chips.lights-nav li::before{animation:xmas 1s var(--ease) calc(var(--k,0) * 160ms) 1 both}
+/* Comunidad: SOLO el botón "Únete al servidor" se ilumina. */
+#comunidad .join-btn.join-glow{animation:join-glow 2s var(--ease) .1s 1}
+@keyframes join-glow{0%,100%{box-shadow:0 10px 26px rgba(88,101,242,.4),inset 0 1px 0 rgba(255,255,255,.22)}
+  30%,60%{box-shadow:0 0 0 2px rgba(200,190,255,.75),0 0 38px rgba(120,100,255,.65),inset 0 1px 0 rgba(255,255,255,.3)}}
 
 /* ---------- 12. Adaptación ---------- */
 @media (max-width:1060px){
@@ -481,10 +614,9 @@ footer small{letter-spacing:.3px;font-size:9.5px;color:#6f8093}
   .bg-shade{background:
     radial-gradient(130% 100% at 50% 25%,transparent 40%,rgba(3,5,10,.55) 100%),
     linear-gradient(180deg,rgba(3,5,10,.32) 0%,rgba(3,5,10,.45) 35%,rgba(3,5,10,.7) 70%,rgba(3,5,10,.86) 100%)}
-  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}   /* sin desenfoque en móvil (más ligero) */
   .avatar-wrap{width:142px;height:142px;margin:22px auto 26px}
   .viz{width:250px;height:250px}
-  h1{font-size:46px;letter-spacing:6px;text-indent:6px}
+  h1{font-size:60px;letter-spacing:7px;text-indent:7px}
   .subtitle{font-size:14.5px}
   .game-chips{gap:6px;margin-top:12px}
   .game-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;padding:0 2px}
@@ -492,23 +624,29 @@ footer small{letter-spacing:.3px;font-size:9.5px;color:#6f8093}
   .game-chip{width:100%;height:52px;padding:7px 6px;border-radius:12px}
   .chip-logo img{max-width:calc(100% - 4px);max-height:32px}
   .center-stack{margin-top:16px;gap:10px}
-  .player{grid-template-columns:72px minmax(0,1fr);grid-template-areas:"cover body" "ctl ctl";gap:10px 12px;padding:12px}
-  .cover{grid-area:cover;width:72px;height:72px}
-  .player-body{grid-area:body}
-  .controls{grid-area:ctl;justify-content:center;gap:14px;padding-top:2px}
-  .ctl-btn{width:42px;height:42px}
-  #vol{width:90px}
+  /* Celular: portada + datos arriba; abajo, centrados, ↺ · REPRODUCIR · volumen. */
+  .player{grid-template-columns:72px minmax(0,1fr);grid-template-areas:"cover body" "ctl ctl";gap:10px 12px;padding:12px 12px 14px}
+  .cover{width:72px;height:72px}
+  .controls{justify-content:center;gap:14px;padding-top:4px;border-top:1px solid rgba(255,255,255,.07);margin-top:2px}
+  .ctl-btn{width:44px;height:44px}
+  .play-btn{width:62px;height:62px}
+  .play-btn svg{width:28px;height:28px}
+  .vol-track{width:82px}
   .track b{font-size:15.5px}
-  .track-sub{flex-wrap:wrap;row-gap:3px}
   .gd-card{grid-template-columns:1fr;gap:12px}
-  .play-btn{width:52px;height:52px}
   .hub-row{grid-template-columns:1fr}
   .hub-stats{padding:10px}
   .hub-stat b{font-size:20px}
   .join-btn{min-height:54px;font-size:14px}
   .layout{margin-top:22px;gap:16px}
   .social-grid{grid-template-columns:1fr;gap:10px}
-  .sc-head{min-height:76px;padding:12px 14px;grid-template-columns:50px minmax(0,1fr) 20px;gap:12px}
+  .sc-head{min-height:76px;padding:12px 14px;grid-template-columns:50px minmax(0,1fr) 20px;gap:10px}
+  .has-stat .sc-head{grid-template-columns:50px minmax(0,1fr) auto 18px}
+  .sc-stat{max-width:96px}
+  .sc-stat b{font-size:17px}
+  .sc-stat small{font-size:10px}
+  .sc-num{gap:4px}
+  .sc-sym{width:11px;height:11px}
   .sc-icon{width:50px;height:50px}
   .qr-act{grid-template-columns:112px minmax(0,1fr);gap:12px}
   .qr-box svg,.qr-fail{width:112px;height:112px}
@@ -532,8 +670,7 @@ footer small{letter-spacing:.3px;font-size:9.5px;color:#6f8093}
 
 /* ---------- Movimiento reducido ---------- */
 @media (prefers-reduced-motion:reduce){
-  .rgb-ring{animation-duration:10s}
-  .ring-glow{animation:none}
+  /* El aro sigue girando (más calmado): su velocidad la pone config.js › ringSecondsReduced. */
   .nav-links a.active,.nav-links a::after,.player::before,.music-on .cover-glow{animation:none}
   .emerald,.sheen-once::after,.open .act::after,.act:hover::after{animation:none}
   .enter,.social-card,.game-chip,.game-tile{animation-duration:.25s;animation-delay:0ms}
@@ -542,6 +679,15 @@ footer small{letter-spacing:.3px;font-size:9.5px;color:#6f8093}
   .bg-layer.on{animation:bg-in var(--bg-fade,1.2s) ease-in-out both}
   .join-btn::before,.live-dot,.music-on .cover-glow,.attention,.bump{animation:none}
   .social-card::before{animation:none}
+  .game-chips.lights li::before,.seek-rgb,.vol-rgb,.hub-live i::after,.live-dot::after,.emerald::after{animation:none}
+  :root{--btn-rgb-time:8s}   /* el RGB del botón y del volumen sigue girando, más calmado */
   .flash{animation-duration:1s}
+  /* Nuevas animaciones: con movimiento reducido quedan quietas (los colores RGB se ven, sin moverse). */
+  h1#profileName.enter{animation:rise .25s var(--ease-out) backwards}
+  .music-on .eq{animation:none}
+  /* v11: entrada solo con fundido corto; los destellos de la barra se conservan (son luz, no movimiento). */
+  .backdrop,.gold-stars{animation-duration:.4s;animation-delay:0ms}
+  #comunidad .hub-stats,#comunidad .join-btn{animation-duration:.25s;animation-delay:0ms}
+  @keyframes xmas{0%,100%{opacity:0}30%{opacity:1}}
   .expand,.open > .expand{transition-duration:.15s}
 }

@@ -1,31 +1,23 @@
-MÚSICA (reproductor propio)
-- call-me-fragmento.mp3 ........ el audio que me pasaste. Es un FRAGMENTO de 17 s, no la canción completa.
-- portada-eito.jpg ............. portada provisional (el logo de EITO).
-- referencia-portada-call-me.jpg  la imagen de la figura de piedra con alas. Se guardó como REFERENCIA:
-                                  no se usa hasta que confirmes que es la portada de la canción.
+MÚSICA (reproductor propio, en bucle)
+- call-me.mp3 .................. CALL ME · 90sFlav (44 s). Se repite sola hasta que la pauses.
+- portada-eito.jpg ............. portada actual (el logo de EITO).
+- referencia-portada-call-me.jpg  imagen de referencia de la canción (no se usa por defecto).
 
-CAMBIAR LA CANCIÓN
-1. Copia aquí tu archivo (MP3 recomendado), por ejemplo: call-me.mp3
-2. En js/config.js › music › tracks cambia:
-     file: 'assets/audio/call-me.mp3'
-     title / artist: el nombre real de la canción y del artista
-     tag: borra la línea (o déjala vacía) cuando ya no sea un fragmento
-3. Usa solo audio que tengas permiso de usar.
+CAMBIAR LA CANCIÓN (js/config.js › music › tracks)
+  file: 'assets/audio/otra.mp3'   title: '...'   artist: '...'
+  Usa solo audio que tengas permiso de usar.
+
+BUCLE
+  music.loop: true  → la canción se repite sin fin.  false → se detiene al terminar.
 
 SEGUNDO DE INICIO
-En la misma canción: startSeconds: 0  → cambia el número (por ejemplo 59).
-Al pulsar Reproducir empieza ahí, y el botón ↺ vuelve a ese segundo.
+  startSeconds: 0 → cambia el número. Al pulsar Reproducir empieza ahí; el botón ↺ vuelve ahí.
 
 PORTADA
-cover: 'assets/audio/portada-eito.jpg'
-Para usar la imagen de referencia: cover: 'assets/audio/referencia-portada-call-me.jpg'
-La portada aparece SOLO en el reproductor (nunca en el perfil ni como fondo).
-
-VARIAS CANCIONES
-Agrega más bloques { title, artist, file, startSeconds, cover } dentro de tracks.
-Con 2 o más aparecen los botones de anterior y siguiente.
+  cover: 'assets/audio/portada-eito.jpg'
+  Para la imagen de referencia: cover: 'assets/audio/referencia-portada-call-me.jpg'
 
 ESPECTRO EN VIVO
-Funciona cuando la página se abre desde un servidor (GitHub Pages, Railway, etc.).
-Si abres index.html con doble clic (file://), el navegador bloquea el análisis:
-la música suena igual, pero el aro solo gira (dice "Sin análisis").
+  Funciona cuando la página se abre desde un servidor (GitHub Pages, Railway, etc.).
+  Abriendo index.html con doble clic (file://) el navegador bloquea el análisis:
+  la música suena igual y el indicador dice "Sin análisis".

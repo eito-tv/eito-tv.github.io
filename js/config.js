@@ -29,6 +29,10 @@
       // PlayStation: el enlace público profile.playstation.com/Eito-MVP mostraba "Algo ha salido mal"
       // al comprobarlo, así que la tarjeta solo copia el ID online. Si tienes un enlace que funcione, ponlo aquí.
       playstation: '',
+      // GitHub: la cuenta de esta página (eito-tv.github.io). Si quieres que la tarjeta abra
+      // directamente el repositorio del Autoexec, pon aquí su dirección completa en githubAutoexec.
+      github: 'https://github.com/eito-tv',
+      githubAutoexec: '',
       spotifyProfile: 'https://open.spotify.com/user/mwsxfj27v8s7nly1zycgg9m4a' // ya no se usa en el reproductor (queda como dato)
     },
 
@@ -41,34 +45,41 @@
 
     /* ---------- Tarjetas de redes (en este orden) ----------
        app: true  → muestra "Abrir en la aplicación" en móvil.
-       copy: lista de { label, value, msg } que se pueden copiar.  */
+       copy: lista de { label, value, msg } que se pueden copiar.
+       stat: el dato que se ve a la derecha de la tarjeta (texto fijo, escrito a mano):
+             { value: '600 mil', label: 'likes' }. Sin stat = no se muestra nada.
+             Discord usa { live: 'discord' }: miembros reales del servidor, en vivo.
+             icon: símbolo junto a la cifra (like, award, star, person, medal, trophy, members).
+       Instagram ya no aparece en las tarjetas (su enlace sigue guardado en links). */
     socials: [
-      { id: 'youtube', name: 'YouTube', user: '@eito_ttv', icon: 'youtube.svg', app: true,
-        copy: [{ label: 'Copiar identificador', value: '@eito_ttv', msg: 'Identificador de YouTube copiado' }] },
-      { id: 'discord', name: 'Discord', user: 'Servidor E I T O', icon: 'discord.svg', app: true, urlKey: 'discordInvite',
-        copy: [{ label: 'Copiar invitación', value: 'link', msg: 'Invitación de Discord copiada' },
-               { label: 'Copiar mi usuario', value: 'eitotv', msg: 'Usuario de Discord copiado' }] },
       { id: 'tiktok', name: 'TikTok', user: '@eito_mvp', icon: 'tiktok.svg', app: true,
+        stat: { value: '600 mil', label: 'likes', icon: 'like' },
         copy: [{ label: 'Copiar usuario', value: '@eito_mvp', msg: 'Usuario de TikTok copiado' }] },
       { id: 'steam', name: 'Steam', user: 'E I T O TT', icon: 'steam.svg', steamClient: true,
+        stat: { value: '8', label: 'premios de la comunidad', icon: 'award' },
         copy: [{ label: 'Copiar URL', value: 'link', msg: 'URL de Steam copiada' },
                { label: 'Copiar código de amigo', value: '1140522975', msg: 'Código de amigo de Steam copiado' }] },
-      { id: 'instagram', name: 'Instagram', user: '@edwin_eito', icon: 'instagram.svg', app: true,
-        copy: [{ label: 'Copiar usuario', value: '@edwin_eito', msg: 'Usuario de Instagram copiado' }] },
+      { id: 'github', name: 'GitHub', user: 'eito-tv', icon: 'github.svg', urlKey: 'github',
+        stat: { value: '9', label: 'estrellas', title: '9 estrellas', icon: 'star' },
+        copy: [{ label: 'Copiar usuario', value: 'eito-tv', msg: 'Usuario de GitHub copiado' }] },
+      { id: 'youtube', name: 'YouTube', user: '@eito_ttv', icon: 'youtube.svg', app: true,
+        stat: { value: '200', label: 'seguidores', icon: 'person' },
+        copy: [{ label: 'Copiar identificador', value: '@eito_ttv', msg: 'Identificador de YouTube copiado' }] },
       { id: 'xbox', name: 'Xbox', user: 'Eito TTV', icon: 'xbox.svg',
+        stat: { value: '1,200', label: 'seguidores', icon: 'medal' },
         note: 'Xbox pide iniciar sesión para ver perfiles.',
         copy: [{ label: 'Copiar gamertag', value: 'Eito TTV', msg: 'Gamertag de Xbox copiado' }] },
-      { id: 'twitch', name: 'Twitch', user: 'eito_ttv', icon: 'twitch.svg', app: true,
-        copy: [{ label: 'Copiar canal', value: 'eito_ttv', msg: 'Canal de Twitch copiado' }] },
       { id: 'playstation', name: 'PlayStation', user: 'Eito-MVP', icon: 'playstation.svg',
-        noStats: 'Sin estadísticas públicas',
-        copy: [{ label: 'Copiar ID online', value: 'Eito-MVP', msg: 'ID de PlayStation copiado' }] }
+        stat: { icon: 'trophy', title: 'Trofeos y comunidad de PlayStation' },
+        copy: [{ label: 'Copiar ID online', value: 'Eito-MVP', msg: 'ID de PlayStation copiado' }] },
+      { id: 'twitch', name: 'Twitch', user: 'eito_ttv', icon: 'twitch.svg', app: true,
+        stat: { value: '50', label: 'seguidores', icon: 'person' },
+        copy: [{ label: 'Copiar canal', value: 'eito_ttv', msg: 'Canal de Twitch copiado' }] },
+      { id: 'discord', name: 'Discord', user: 'Servidor E I T O', icon: 'discord.svg', app: true, urlKey: 'discordInvite',
+        stat: { live: 'discord', label: 'miembros', icon: 'members' },
+        copy: [{ label: 'Copiar invitación', value: 'link', msg: 'Invitación de Discord copiada' },
+               { label: 'Copiar mi usuario', value: 'eitotv', msg: 'Usuario de Discord copiado' }] }
     ],
-
-    /* ---------- Steam: dato manual ----------
-       Steam no tiene API pública de "premios recibidos". Este número se
-       escribe a mano: verifícalo en tu perfil y cámbialo cuando suba. */
-    steamAwardsManual: 8,
 
     /* ---------- Perfiles de juegos ----------
        url: abre el perfil · copy: se copia al pulsar (ID, etiqueta o nombre).
@@ -86,18 +97,19 @@
        logo: logotipo oficial (assets/logos-juegos/) · image: imagen oficial del juego.
        profile: mi perfil en ese juego (url para abrir, copy para copiar).
        Los botones bajo mi nombre (solo logotipo) y las tarjetas de la galería
-       hacen LO MISMO: bajan despacio hasta la tarjeta del juego y abren su ficha. */
+       hacen LO MISMO: bajan despacio hasta la tarjeta del juego y abren su ficha.
+       chipColor: color propio del botón bajo mi nombre (borde y luz suave). accent: galería y ficha. */
     games: [
-      { id: 'l4d2', name: 'Left 4 Dead 2', short: 'L4D2', logo: 'assets/logos-juegos/l4d2.webp', image: 'assets/juegos/l4d2-pantano.webp', accent: '#d63a2f',
+      { id: 'l4d2', name: 'Left 4 Dead 2', short: 'L4D2', logo: 'assets/logos-juegos/l4d2.webp', image: 'assets/juegos/l4d2-pantano.webp', accent: '#d63a2f', chipColor: '#b3141c',
         profile: { label: 'Mi perfil de Steam', url: 'https://steamcommunity.com/profiles/76561199100788703/' }, resources: true },
-      { id: 'minecraft', name: 'Minecraft', short: 'Minecraft', logo: 'assets/logos-juegos/minecraft.svg', image: 'assets/juegos/minecraft-bosque.webp', accent: '#5aa02c' },
-      { id: 'warzone', name: 'Call of Duty: Warzone', short: 'Warzone', logo: 'assets/logos-juegos/warzone.webp', image: 'assets/juegos/warzone-ciudad.webp', accent: '#9bbf3b' },
-      { id: 'fortnite', name: 'Fortnite', short: 'Fortnite', logo: 'assets/logos-juegos/fortnite.svg', image: 'assets/juegos/fortnite-cielo.webp', accent: '#9d4dff',
+      { id: 'minecraft', name: 'Minecraft', short: 'Minecraft', logo: 'assets/logos-juegos/minecraft.svg', image: 'assets/juegos/minecraft-bosque.webp', accent: '#5aa02c', chipColor: '#2e8b2e' },
+      { id: 'warzone', name: 'Call of Duty: Warzone', short: 'Warzone', logo: 'assets/logos-juegos/warzone.webp', image: 'assets/juegos/warzone-ciudad.webp', accent: '#9bbf3b', chipColor: '#8f2d1c' },
+      { id: 'fortnite', name: 'Fortnite', short: 'Fortnite', logo: 'assets/logos-juegos/fortnite.svg', image: 'assets/juegos/fortnite-cielo.webp', accent: '#9d4dff', chipColor: '#2f7dff',
         profile: { label: 'Nombre en Epic Games', copy: 'E I T O 栄人', msg: 'Nombre de Epic Games copiado' } },
-      { id: 'overwatch', name: 'Overwatch 2', short: 'Overwatch 2', logo: 'assets/logos-juegos/overwatch.svg', image: 'assets/juegos/overwatch-base.webp', accent: '#f99e1a' },
-      { id: 'roblox', name: 'Roblox', short: 'Roblox', logo: 'assets/logos-juegos/roblox.svg', logoInvert: true, image: 'assets/juegos/roblox-dragones.webp', accent: '#e8eaed',
+      { id: 'overwatch', name: 'Overwatch 2', short: 'Overwatch 2', logo: 'assets/logos-juegos/overwatch.svg', image: 'assets/juegos/overwatch-base.webp', accent: '#f99e1a', chipColor: '#f28c12' },
+      { id: 'roblox', name: 'Roblox', short: 'Roblox', logo: 'assets/logos-juegos/roblox.svg', logoInvert: true, image: 'assets/juegos/roblox-dragones.webp', accent: '#e8eaed', chipColor: '#c4c9d1',
         profile: { label: 'Mi perfil de Roblox', url: 'https://www.roblox.com/es/users/3318500847/profile' } },
-      { id: 'brawlstars', name: 'Brawl Stars', short: 'Brawl Stars', logo: 'assets/logos-juegos/brawlstars.webp', image: 'assets/juegos/brawl-desierto.webp', accent: '#ffc400',
+      { id: 'brawlstars', name: 'Brawl Stars', short: 'Brawl Stars', logo: 'assets/logos-juegos/brawlstars.webp', image: 'assets/juegos/brawl-desierto.webp', accent: '#ffc400', chipColor: '#c99a06',
         profile: { label: 'Mi etiqueta', copy: '#2RRROY98LY', msg: 'Etiqueta de Brawl Stars copiada' } }
     ],
 
@@ -148,16 +160,16 @@
        Usa solo audio que tengas permiso de usar. Nunca suena sola al abrir la página. */
     music: {
       volume: 0.5,               // volumen inicial (0.5 = 50 %)
+      loop: true,                // true = la canción se repite sin fin hasta que se pause
       tracks: [
         {
           title: 'CALL ME',
-          artist: '',            // escribe aquí el nombre del artista (no venía en el archivo)
-          file: 'assets/audio/call-me-fragmento.mp3',  // fragmento de 17 s: reemplázalo por la canción completa autorizada
-          startSeconds: 0,       // ← cambia este número para empezar en otro segundo
-          // Portada provisional: el logo de EITO. Para usar la imagen de referencia de la
-          // canción (figura de piedra con alas), cambia a: 'assets/audio/referencia-portada-call-me.jpg'
-          cover: 'assets/audio/portada-eito.jpg',
-          tag: 'Fragmento'       // bórralo cuando pongas la canción completa
+          artist: '90sFlav',
+          file: 'assets/audio/call-me.mp3',
+          startSeconds: 0,       // ← segundo desde el que empieza al pulsar Reproducir
+          // Portada actual: el logo de EITO. Para usar la imagen de referencia de la
+          // canción, cambia a: 'assets/audio/referencia-portada-call-me.jpg'
+          cover: 'assets/audio/portada-eito.jpg'
         }
       ]
     },
@@ -180,18 +192,13 @@
       { title: 'GAMING', sub: 'FPS y ajustes', url: '' }
     ],
 
-    /* ---------- Estadísticas ----------
-       Las cifras las publica GitHub Actions (ver LEEME.txt). Discord también
-       se consulta en vivo desde el navegador (no necesita claves). */
+    /* ---------- Discord en vivo ----------
+       Los miembros y los miembros en línea se piden a la API pública de Discord
+       con la invitación de links.discordInvite (no necesita claves ni tokens).
+       Las cifras de las demás redes son textos fijos (socials › stat). */
     stats: {
-      // vacío = automático en GitHub Pages. En Railway u otro servidor no se pide ningún archivo;
-      // si quieres las cifras de las demás redes allí, pon la dirección completa, por ejemplo:
-      // 'https://raw.githubusercontent.com/eito-tv/eito-tv.github.io/estadisticas/stats.json'
-      // (Discord no depende de esto: siempre se consulta en vivo.)
-      url: '',
-      branch: 'estadisticas',
-      refreshMinutes: 15,
-      discordLive: true
+      discordLive: true,
+      discordSeconds: 60     // cada cuánto se vuelve a consultar Discord (solo con la página a la vista)
     },
 
     /* ---------- Clips de mis partidas ----------
@@ -209,7 +216,9 @@
       goldStars: true,       // estrellas doradas de cuatro puntas (entre el fondo y el contenido)
       maxStarsDesktop: 26,
       maxStarsMobile: 12,
-      counterSeconds: 9      // duración del conteo de Discord (de 0 a la cifra real, en cada carga)
+      counterSeconds: 15,    // duración del conteo de Discord (de 0 a la cifra real, en cada carga)
+      ringSeconds: 1.5,      // una vuelta del aro RGB del logo (celular y computadora)
+      ringSecondsReduced: 3  // la misma vuelta si el sistema pide "reducir animaciones" (más calmado, pero gira)
     }
   };
 })();
