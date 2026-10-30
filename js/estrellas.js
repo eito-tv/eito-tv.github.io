@@ -22,10 +22,10 @@
     const canvas = $('#goldStars');
     const ctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
     const enabled = !!ctx && fx.goldStars !== false;
-    let stars = [], raf = 0, last = 0, w = 0, h = 0, energy = 0, boost = 0, avoid = null, lastAvoid = 0;
+    let stars = [], raf = 0, last = 0, w = 0, h = 0, energy = 0, boost = 0, avoid = null, lastAvoid = 0, playing = false;
     const COLORS = ['#ffd84a', '#ffc21f', '#fff0a6', '#ffb000', '#ffe27a'];
     const count = () => {
-      let n = SMALL.matches ? (fx.maxStarsMobile || 16) : (fx.maxStarsDesktop || 34);
+      let n = SMALL.matches ? (fx.maxStarsMobile || 22) : (fx.maxStarsDesktop || 46);
       if (E.LITE) n = Math.round(n * 0.7);   // navegador integrado o equipo modesto
       return n;
     };
@@ -62,6 +62,11 @@
         x: home.x, y: home.y,
         size: (SMALL.matches ? 7 : 9) + Math.random() * (SMALL.matches ? 8 : 12),
         rot: rnd(-0.3, 0.3), spr: sprites[i % sprites.length], base: rnd(0.45, 0.85),
+        // v13 · Pausa: unas 3 de cada 10 llegan a apagarse del todo en su ciclo (floor 0).
+        floor: Math.random() < 0.3 ? 0 : rnd(0.18, 0.32),
+        // v13 · Con música: 1 de cada 4 es de reserva (solo aparece sonando, cada una a su tiempo)
+        // y la mitad sigue además la intensidad del audio.
+        reserve: i % 4 === 3, th: rnd(0, 0.75), react: Math.random() < 0.5,
         // Brillo: su propia velocidad (ciclos de ~4 a ~14 s) y su propio retraso (fase).
         tw: rnd(0.45, 1.5), ph: Math.random() * 6.283,
         // Movimiento: sube y baja despacio (6-14 px, ciclos de ~10 a ~25 s) con un leve vaivén lateral.
@@ -85,17 +90,24 @@
     }
     function draw(dt, t = 0) {
       ctx.clearRect(0, 0, w, h);
-      boost += ((energy > 0 ? 1 : 0) - boost) * Math.min(1, dt * 1.5);
+      boost += ((playing ? 1 : 0) - boost) * Math.min(1, dt * 0.8);   // ~2 s para pasar de pausa a música
       const av = avoidRect(t);
+      const still = REDUCED.matches;                                   // movimiento reducido: solo brillo, sin desplazarse
       for (const s of stars) {
-        s.ph += s.tw * dt; s.bp += s.bs * dt;
-        const x = s.x * w + Math.sin(s.bp * 0.7) * s.sa;
-        const y = s.y * h + Math.sin(s.bp) * s.ba;
+        // Con música todo va un poco más vivo (el cambio entra suave con boost, de 0 a 1).
+        s.ph += s.tw * dt * (1 + boost * 0.35); s.bp += s.bs * dt * (1 + boost * 0.45);
+        const amp = 1 + boost * 0.25;
+        const x = s.x * w + (still ? 0 : Math.sin(s.bp * 0.7) * s.sa * amp);
+        const y = s.y * h + (still ? 0 : Math.sin(s.bp) * s.ba * amp);
         const glow = 0.5 + 0.5 * Math.sin(s.ph);                       // 0 = tenue · 1 = brillante
-        let a = s.base * (0.22 + 0.78 * glow) * (0.85 + boost * 0.2 + energy * 0.4);
+        // Las de reserva aparecen poco a poco al sonar la música (cada una con su umbral).
+        const show = s.reserve ? Math.min(1, Math.max(0, (boost - s.th) / 0.25)) : 1;
+        if (show <= 0) continue;
+        const pulse = s.react ? energy * 0.32 : energy * 0.08;          // parte del brillo sigue a los graves
+        let a = show * s.base * (s.floor + (1 - s.floor) * glow) * (0.85 + boost * 0.12 + pulse);
         if (av) { const d = Math.hypot(x - av.x, y - av.y); if (d < av.r) a *= Math.max(0, (d - av.r * 0.55) / (av.r * 0.45)); }
         if (a <= 0.03) continue;
-        const sz = s.size * (0.86 + 0.14 * glow) * (1 + energy * 0.3);
+        const sz = s.size * (0.86 + 0.14 * glow) * (1 + (s.react ? energy * 0.16 : energy * 0.05));
         ctx.globalAlpha = Math.min(1, a);
         ctx.setTransform(1, 0, 0, 1, x, y); ctx.rotate(s.rot);
         ctx.drawImage(s.spr, -sz, -sz, sz * 2, sz * 2);
@@ -106,11 +118,12 @@
     // ~30 cuadros por segundo: suficiente para un movimiento tan lento y ahorra batería.
     function frame(t) {
       raf = requestAnimationFrame(frame);
-      if (t - last < 32) return;
+      if (t - last < (REDUCED.matches ? 64 : 32)) return;
       const dt = Math.min(0.1, (t - (last || t)) / 1000); last = t;
       draw(dt, t);
     }
-    function run() { if (!raf && !document.hidden && !REDUCED.matches) { last = 0; raf = requestAnimationFrame(frame); } }
+    // Con movimiento reducido siguen brillando (sin desplazarse) a ~15 cuadros por segundo.
+    function run() { if (!raf && !document.hidden) { last = 0; raf = requestAnimationFrame(frame); } }
     function halt() { cancelAnimationFrame(raf); raf = 0; }
     if (enabled) {
       resize(); run();
@@ -125,6 +138,7 @@
     } else if (canvas) canvas.hidden = true;
     return {
       setEnergy(e) { energy = e; },
+      setPlaying(p) { playing = !!p; },
       get count() { return stars.length; },
       get running() { return !!raf; }
     };

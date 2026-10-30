@@ -50,5 +50,8 @@
   safe('estadísticas', startStats);   // la consulta a Discord sale en cuanto carga la página
   setTimeout(() => safe('paneles', prebuildPanels), 2600);   // después de la animación de entrada
   setTimeout(() => safe('pausa fuera de pantalla', pauseOffscreen), 3200);
+  // La entrada terminó: desde aquí las animaciones de entrada ya no se aplican, así los brillos
+  // temporales (botón de Discord, tarjetas de juegos) no las reinician al terminar.
+  setTimeout(() => document.documentElement.classList.add('entered'), 3600);
   document.documentElement.classList.add('js-ready');
 })();

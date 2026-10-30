@@ -32,7 +32,7 @@
   /* Celular: portada + datos arriba; abajo, centrados, ↺ · REPRODUCIR · volumen. */
   .player{grid-template-columns:72px minmax(0,1fr);grid-template-areas:"cover body" "ctl ctl";gap:10px 12px;padding:12px 12px 14px}
   .cover{width:72px;height:72px}
-  .controls{gap:10px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07);margin-top:2px}
+  .controls{--ctl-gap:22px;padding-top:6px;border-top:1px solid rgba(255,255,255,.07);margin-top:2px}
   .ctl-btn{width:44px;height:44px}
   .play-btn{width:62px;height:62px}
   .play-btn svg{width:28px;height:28px}
@@ -68,8 +68,6 @@
   .main-col{gap:28px}
   .side{gap:22px}
   .games-section{margin-top:32px}
-  .section-title{font-size:13px;letter-spacing:2.2px;margin-bottom:14px}
-  .section-title span{padding:5px 11px;border-radius:20px;background:rgba(8,10,18,.6);border:1px solid rgba(255,255,255,.1)}
   .scroll-hint{display:flex;animation:fade-in .8s ease-out 2.4s backwards}
   .scroll-hint svg{animation:hint-bob 1.6s ease-in-out infinite}
   .clip-empty{grid-template-columns:96px minmax(0,1fr);gap:12px;padding:12px}
@@ -80,7 +78,7 @@
 }
 @media (max-width:380px){
   .vol-track{width:70px}
-  .controls{gap:6px}
+  .controls{--ctl-gap:14px}
 }
 @media (max-width:350px){
   .qr-act{grid-template-columns:1fr}
@@ -96,7 +94,7 @@
   /* El aro sigue girando (más calmado): su velocidad la pone config.js › ringSecondsReduced. */
   .nav-links a.active,.nav-links a::after,.player::before,.music-on .cover-glow{animation:none}
   .emerald,.sheen-once::after,.open .act::after,.act:hover::after{animation:none}
-  .enter,.social-card,.game-chip,.game-tile{animation-duration:.25s;animation-delay:0ms}
+  .enter,.social-card,.game-chip,html:not(.entered) .game-tile{animation-duration:.25s;animation-delay:0ms}
   @keyframes rise{from{opacity:0}to{opacity:1}}
   /* v12: entradas solo con fundido corto (sin desplazamientos); el aro conserva su giro. */
   @keyframes from-right{from{opacity:0}to{opacity:1}}
@@ -118,7 +116,7 @@
   .music-on .eq{animation:none}
   /* v11: entrada solo con fundido corto; los destellos de la barra se conservan (son luz, no movimiento). */
   .backdrop,.gold-stars{animation-duration:.4s;animation-delay:0ms}
-  #comunidad .hub-stats,#comunidad .join-btn{animation-duration:.25s;animation-delay:0ms}
+  #comunidad .hub-stats,html:not(.entered) #comunidad .join-btn{animation-duration:.25s;animation-delay:0ms}
   @keyframes xmas{0%,100%{opacity:0}30%{opacity:1}}
   .expand,.open > .expand{transition-duration:.15s}
 }

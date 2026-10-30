@@ -109,10 +109,11 @@
   /* =========================================================
      BOTONES DE ACCIÓN (compartidos por Discord y las redes)
      ========================================================= */
-  function actionsMarkup({ url, app, steamClient, copy = [], appLabel }) {
+  function actionsMarkup({ url, app, steamClient, copy = [], appLabel, appUri }) {
     const out = [];
     if (url && (app || appLabel) && (IS_MOBILE || appLabel)) {
-      out.push(`<button class="act pressable" type="button" data-act="app" data-url="${esc(url)}">${ICON.app}<span>${esc(appLabel || 'Abrir en la aplicación')}</span></button>`);
+      // appUri (opcional): dirección propia de la app de escritorio (p. ej. spotify:user:…).
+      out.push(`<button class="act pressable" type="button" data-act="app" data-url="${esc(url)}"${appUri ? ` data-uri="${esc(appUri)}"` : ''}>${ICON.app}<span>${esc(appLabel || 'Abrir en la aplicación')}</span></button>`);
     }
     if (url && steamClient && !IS_MOBILE) {
       out.push(`<button class="act pressable" type="button" data-act="steam" data-url="${esc(url)}">${ICON.steam}<span>Abrir en la app de Steam</span></button>`);
@@ -134,6 +135,12 @@
       const act = btn.dataset.act;
       if (act === 'app') {
         e.preventDefault();
+        // Computadora con dirección propia de la app (Spotify): se intenta abrir la app instalada.
+        if (!IS_MOBILE && btn.dataset.uri) {
+          window.location.href = btn.dataset.uri;
+          toast('Si no se abre la app, usa “Abrir en el navegador”', 'info', 3600);
+          return;
+        }
         if (!IS_MOBILE) toast('Si tienes la app instalada, la página te ofrecerá abrirla', 'info');
         else if (IN_APP_BROWSER) toast('Si no se abre la app, usa “Abrir en la web”', 'info');
         openInApp(btn.dataset.url);

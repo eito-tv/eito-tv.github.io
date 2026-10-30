@@ -33,7 +33,9 @@
       // directamente el repositorio del Autoexec, pon aquí su dirección completa en githubAutoexec.
       github: 'https://github.com/eito-tv',
       githubAutoexec: '',
-      spotifyProfile: 'https://open.spotify.com/user/mwsxfj27v8s7nly1zycgg9m4a' // ya no se usa en el reproductor (queda como dato)
+      spotifyProfile: 'https://open.spotify.com/user/mwsxfj27v8s7nly1zycgg9m4a', // (dato anterior, sin uso)
+      spotify: 'https://open.spotify.com/user/mwsxfj27v8s7nly1zycgg9m4a?si=f853d8a4ec444426',
+      x: 'https://x.com/Lixy_TTV'
     },
 
     /* ---------- Discord (sección destacada) ---------- */
@@ -49,7 +51,8 @@
        stat: el dato que se ve a la derecha de la tarjeta (texto fijo, escrito a mano):
              { value: '600 mil', label: 'likes' }. Sin stat = no se muestra nada.
              Discord usa { live: 'discord' }: miembros reales del servidor, en vivo.
-             icon: símbolo junto a la cifra (like, award, star, person, medal, trophy, members).
+             icon: símbolo junto a la cifra (like, award, star, person, medal, trophy, members, playlist).
+       direct: true → toda la tarjeta es un enlace que abre el perfil (sin panel desplegable).
        Instagram ya no aparece en las tarjetas (su enlace sigue guardado en links). */
     socials: [
       { id: 'tiktok', name: 'TikTok', user: '@eito_mvp', icon: 'tiktok.svg', app: true,
@@ -59,16 +62,27 @@
         stat: { value: '8', label: 'premios de la comunidad', icon: 'award' },
         copy: [{ label: 'Copiar URL', value: 'link', msg: 'URL de Steam copiada' },
                { label: 'Copiar código de amigo', value: '1140522975', msg: 'Código de amigo de Steam copiado' }] },
+      { id: 'xbox', name: 'Xbox', user: 'Eito TTV', icon: 'xbox.svg',
+        stat: { value: '1,200', label: 'seguidores', icon: 'medal' },
+        note: 'Xbox pide iniciar sesión para ver perfiles.',
+        copy: [{ label: 'Copiar gamertag', value: 'Eito TTV', msg: 'Gamertag de Xbox copiado' }] },
       { id: 'github', name: 'GitHub', user: 'eito-tv', icon: 'github.svg', urlKey: 'github',
         stat: { value: '9', label: 'estrellas', title: '9 estrellas', icon: 'star' },
         copy: [{ label: 'Copiar usuario', value: 'eito-tv', msg: 'Usuario de GitHub copiado' }] },
       { id: 'youtube', name: 'YouTube', user: '@eito_ttv', icon: 'youtube.svg', app: true,
         stat: { value: '200', label: 'seguidores', icon: 'person' },
         copy: [{ label: 'Copiar identificador', value: '@eito_ttv', msg: 'Identificador de YouTube copiado' }] },
-      { id: 'xbox', name: 'Xbox', user: 'Eito TTV', icon: 'xbox.svg',
-        stat: { value: '1,200', label: 'seguidores', icon: 'medal' },
-        note: 'Xbox pide iniciar sesión para ver perfiles.',
-        copy: [{ label: 'Copiar gamertag', value: 'Eito TTV', msg: 'Gamertag de Xbox copiado' }] },
+      // Spotify y X: panel desplegable como GitHub (QR + abrir en la app + navegador + copiar enlace).
+      // appUri: dirección que abre la app de escritorio si está instalada (en celular se usa el enlace web,
+      // que Android/iPhone abren en la app). X no tiene una para computadora: ahí abre la web.
+      { id: 'spotify', name: 'Spotify', user: 'Perfil personal de Spotify', icon: 'spotify.svg', urlKey: 'spotify',
+        appLabel: 'Abrir en la aplicación', appUri: 'spotify:user:mwsxfj27v8s7nly1zycgg9m4a',
+        stat: { value: '8', label: 'playlists', icon: 'playlist' },
+        copy: [{ label: 'Copiar enlace', value: 'link', msg: 'Enlace de Spotify copiado' }] },
+      { id: 'x', name: 'X', user: '@Lixy_TTV', icon: 'x.svg', urlKey: 'x',
+        appLabel: 'Abrir en la aplicación',
+        stat: { icon: 'person', title: 'Mi perfil de X' },
+        copy: [{ label: 'Copiar enlace', value: 'link', msg: 'Enlace de X copiado' }] },
       { id: 'playstation', name: 'PlayStation', user: 'Eito-MVP', icon: 'playstation.svg',
         stat: { icon: 'trophy', title: 'Trofeos y comunidad de PlayStation' },
         copy: [{ label: 'Copiar ID online', value: 'Eito-MVP', msg: 'ID de PlayStation copiado' }] },
@@ -214,8 +228,8 @@
     /* ---------- Animaciones ---------- */
     effects: {
       goldStars: true,       // estrellas doradas de cuatro puntas (entre el fondo y el contenido)
-      maxStarsDesktop: 34,   // v12: +30 %
-      maxStarsMobile: 16,
+      maxStarsDesktop: 46,   // v13: con música se ven todas; en pausa, unas 3/4
+      maxStarsMobile: 22,
       counterSeconds: 15,    // duración del conteo de Discord (de 0 a la cifra real, en cada carga)
       ringSeconds: 1.5,      // una vuelta del aro RGB del logo (celular y computadora)
       ringSecondsReduced: 3  // la misma vuelta si el sistema pide "reducir animaciones" (más calmado, pero gira)

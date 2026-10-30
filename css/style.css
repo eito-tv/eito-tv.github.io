@@ -540,10 +540,10 @@ footer small{letter-spacing:.3px;font-size:9.5px;color:#6f8093}
 
 /* ---------- v12 · Controles del reproductor ----------
    Izquierda: reiniciar · Centro: reproducir/pausar · Derecha: volumen. Igual en PC y celular. */
-.controls{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:10px}
+/* v13: el grupo va centrado y con la MISMA separación a cada lado del botón principal, así
+   reproducir queda visualmente en medio de reiniciar y del volumen (antes el volumen quedaba pegado). */
+.controls{display:flex;align-items:center;justify-content:center;gap:var(--ctl-gap,30px)}
 .ctl-side{display:flex;align-items:center;gap:8px;min-width:0}
-.ctl-left{justify-content:flex-start}
-.ctl-right{justify-content:flex-end}
 
 /* ---------- v12 · Botón pequeño "actualizar" de Discord ---------- */
 .hub-live-row{display:flex;align-items:center;justify-content:center;gap:6px;min-height:20px}
@@ -574,3 +574,33 @@ footer small{letter-spacing:.3px;font-size:9.5px;color:#6f8093}
   box-shadow:0 6px 18px rgba(0,0,0,.45);transition:opacity .5s var(--ease)}
 .scroll-hint svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .scroll-hint.gone{opacity:0;pointer-events:none}
+
+/* ---------- v13 · Computadora con el mismo lenguaje visual que el celular ----------
+   Lo que funciona en celular, adaptado al ancho de la computadora (sin agrandarlo todo):
+   reproductor con los controles en su propia fila, títulos de sección en píldora,
+   espacios más generosos entre bloques y tarjetas con el brillo de su marca. */
+.section-title{font-size:13px;letter-spacing:2.2px;margin-bottom:14px}
+.section-title span{padding:5px 12px;border-radius:20px;background:rgba(8,10,18,.6);border:1px solid rgba(255,255,255,.1)}
+@media (min-width:701px){
+  .center-stack{max-width:660px;gap:14px}
+  .player{grid-template-areas:"cover body" "ctl ctl";gap:10px 18px;padding:16px 18px 16px}
+  .controls{padding-top:10px;border-top:1px solid rgba(255,255,255,.07)}
+  .ctl-btn{width:44px;height:44px}
+  .play-btn{width:60px;height:60px}
+  .play-btn svg{width:27px;height:27px}
+  .vol-track{width:110px}
+  .layout{margin-top:36px;gap:26px}
+  .main-col{gap:30px}
+  .side{gap:18px}
+  .games-section{margin-top:38px}
+  .social-grid{gap:14px}
+  .social-card{box-shadow:0 10px 26px rgba(0,0,0,.35),0 0 18px -6px color-mix(in srgb,var(--c) 45%,transparent)}
+}
+/* ---------- v13 · Spotify y X en "Mis redes" (mismo diseño que las demás tarjetas) ---------- */
+.social-card.spotify{--c:#1ed760;--c2:#1db954;--g:conic-gradient(#1ed760,#9ff5bd,#1db954,#1ed760,#0d6b30,#1ed760)}
+.social-card.x{--c:#e7e9ea;--c2:#71767b;--g:conic-gradient(#ffffff,#71767b,#0f1419,#ffffff,#71767b,#ffffff)}
+.spotify .sc-icon{background:linear-gradient(145deg,#1ed760,#12873b);box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 14px rgba(30,215,96,.45)}
+.x .sc-icon{background:#000;border:1px solid rgba(255,255,255,.22);box-shadow:0 6px 16px rgba(0,0,0,.35),0 0 12px rgba(231,233,234,.18)}
+.x .sc-icon img{width:26px;height:26px}
+/* Tarjeta que es un enlace directo: misma apariencia que el botón de las demás. */
+a.sc-head{color:inherit;text-decoration:none}

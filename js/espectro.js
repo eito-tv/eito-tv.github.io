@@ -150,13 +150,15 @@
       get audible() { return audible(); },
       start() {
         wanted = true;
+        Stars.setPlaying(true);        // más estrellas y algo más de vida mientras suena
         wrap.classList.add('playing');
         if (analyser) wrap.classList.add('live');
         wake();
       },
       wake,                            // tras buscar, cargar o volver a la pestaña
       stop() {
-        wanted = false;                // las barras bajan rápido y el aro vuelve a su giro normal
+        wanted = false;
+        Stars.setPlaying(false);                // las barras bajan rápido y el aro vuelve a su giro normal
         wrap.classList.remove('playing', 'live');
       }
     };

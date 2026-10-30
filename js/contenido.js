@@ -124,6 +124,7 @@
     members: '<circle cx="9" cy="8" r="3.4"/><path d="M2.8 19.5c.6-3.6 3.1-5.6 6.2-5.6s5.6 2 6.2 5.6z"/><circle cx="17.2" cy="9" r="2.7"/><path d="M16.2 13.9c2.8-.2 4.9 1.4 5.4 4.8h-4.4c-.2-1.9-.5-3.4-1-4.8z"/>',
     award: '<circle cx="12" cy="9" r="6.2"/><path d="M8.3 14.2 6.8 22l5.2-2.7 5.2 2.7-1.5-7.8a7.7 7.7 0 0 1-7.4 0z"/>',
     medal: '<path d="M6.6 2h4.2l2.3 5.6a8 8 0 0 0-3 .9zM17.4 2h-4.2l-.8 2 1.7 4.2a8 8 0 0 1 1.9.9z"/><circle cx="12" cy="15.6" r="6"/>',
+    playlist: '<path d="M3 5.5h12v2.2H3zM3 10h12v2.2H3zM3 14.5h7.5v2.2H3z"/><path d="M17.2 4.2v9.9a2.9 2.9 0 1 0 2.2 2.8V8.1l2.4-.8V5z"/>',
     trophy: '<path d="M7 2.8h10v1.7h3.4v2.8a4.4 4.4 0 0 1-4.1 4.4 5.1 5.1 0 0 1-3.1 2.9v2.6h3.1v3.2H7.7v-3.2h3.1v-2.6a5.1 5.1 0 0 1-3.1-2.9 4.4 4.4 0 0 1-4.1-4.4V4.5H7zM5.6 6.4v.9c0 .9.6 1.7 1.4 2zm12.8 0-1.4 2.9c.8-.3 1.4-1.1 1.4-2z"/>'
   };
   const statIcon = k => (STAT_ICON[k] ? `<svg class="sc-sym" viewBox="0 0 24 24" aria-hidden="true">${STAT_ICON[k]}</svg>` : '');
@@ -172,21 +173,29 @@
       const card = document.createElement('article');
       card.className = `social-card ${s.id}${s.stat ? ' has-stat' : ''}`;
       card.style.setProperty('--i', i);
-      card.innerHTML = `
-        <button class="sc-head" type="button" aria-expanded="false" aria-controls="panel-${s.id}" data-tap>
+      const inside = `
           <span class="sc-icon"><img src="assets/${esc(s.icon)}" alt="" width="30" height="30"></span>
           <span class="sc-text">
             <span class="sc-name">${esc(s.name)}</span>
             <span class="sc-user">${esc(s.user)}</span>
           </span>
           ${statMarkup(s.stat)}
-          <span class="chev" aria-hidden="true">›</span>
+          <span class="chev" aria-hidden="true">›</span>`;
+      // direct: toda la tarjeta es un enlace al perfil (mismo diseño, sin panel desplegable).
+      if (s.direct && url) {
+        card.classList.add('direct');
+        card.innerHTML = `<a class="sc-head" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir mi perfil de ${esc(s.name)} (${esc(s.user)})" data-tap>${inside}</a>`;
+        frag.appendChild(card);
+        return;
+      }
+      card.innerHTML = `
+        <button class="sc-head" type="button" aria-expanded="false" aria-controls="panel-${s.id}" data-tap>${inside}
         </button>
         <div class="expand" id="panel-${s.id}"><div class="expand-inner"></div></div>`;
       makeExpander(card, $('.sc-head', card), $('.expand', card), () => `
         <div class="qr-act">
           ${url ? `<div class="qr-box">${qrMarkup(url, `Código QR de ${s.name}`)}<small>Escanea para abrir</small></div>` : ''}
-          <div class="acts">${actionsMarkup({ url, app: s.app, steamClient: s.steamClient, copy: s.copy })}</div>
+          <div class="acts">${actionsMarkup({ url, app: s.app, appLabel: s.appLabel, appUri: s.appUri, steamClient: s.steamClient, copy: s.copy })}</div>
         </div>
         ${s.note ? `<p class="note">${esc(s.note)}</p>` : ''}`);
       if (s.stat && s.stat.live === 'discord') E.discordCardStat = discordCardStat = $('[data-live="discord"]', card);

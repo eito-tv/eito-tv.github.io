@@ -51,6 +51,7 @@
     const anim = el._anim = { to: value };
     el.textContent = nf.format(from);
     const step = now => {
+      if (anim.dead) return;                                     // se reinició el conteo (botón actualizar)
       if (!anim.t0) anim.t0 = first ? (countClock || (countClock = now)) : now;
       const t = Math.min(1, (now - anim.t0) / dur);
       if (t < 1) {
@@ -72,6 +73,17 @@
       document.addEventListener('visibilitychange', function v() { if (!document.hidden) { document.removeEventListener('visibilitychange', v); fn(); } });
     };
     if (first) whenOnScreen(() => whenTabVisible(go)); else whenTabVisible(go);
+  }
+  /* Botón actualizar: los dos contadores vuelven a 0 y repiten la MISMA animación de la carga,
+     juntos y hasta las cifras nuevas. Solo se llama cuando ya llegaron cifras reales. */
+  function restartCounters() {
+    ['#hubMembers', '#hubOnline'].forEach(s => {
+      const el = $(s);
+      if (!el) return;
+      if (el._anim) { el._anim.dead = true; el._anim = null; }
+      el._shown = NaN; el._target = undefined;
+    });
+    countClock = 0;
   }
   /* Un solo IntersectionObserver para el bloque de cifras: avisa una vez cuando entra
      en pantalla y luego se desconecta. Sin soporte (navegadores viejos), arranca enseguida. */
@@ -143,11 +155,15 @@
     }
   }
   let fetching = false, lastFetch = 0, retryTimer = 0;
-  async function refreshDiscord() {
+  async function refreshDiscord({ restart = false } = {}) {
     if (fetching) return;                                         // nunca dos consultas a la vez
     fetching = true; lastFetch = Date.now();
+    const before = hub.at;
     await loadDiscordLive();
     fetching = false;
+    // Mientras se consulta se siguen viendo las cifras anteriores (nunca valores a medias);
+    // con datos nuevos y reales, el conteo se reinicia desde 0.
+    if (restart && hub.state === 'ok' && hub.at > before) restartCounters();
     renderHub();
     clearTimeout(retryTimer);
     // Si falló al cargar, se reintenta solo (a los 20 s y a los 60 s).
@@ -162,7 +178,7 @@
     if (fetching || btn.disabled) return;
     btn.disabled = true; btn.classList.add('spinning'); btn.removeAttribute('data-state');
     const before = hub.at, t0 = Date.now();
-    await refreshDiscord();
+    await refreshDiscord({ restart: true });
     // El giro dura al menos una vuelta, para que se note que se consultó.
     setTimeout(() => {
       btn.classList.remove('spinning'); btn.disabled = false;
