@@ -1,3 +1,0 @@
-MINIATURAS DE LA GALERÍA DE JUEGOS
-Imagen horizontal de 640x360 (WebP). Regístrala en js/config.js › games › image.
-Si un juego no tiene imagen, la galería muestra una tarjeta con su nombre.

@@ -1,8 +1,0 @@
-LOGO Y PERFIL
-- eito-logo.webp / eito-logo.png ... tu logo (letras blancas, fondo transparente). Va dentro del aro RGB.
-- eito-logo-mini.png ............... versión pequeña para la barra superior.
-- favicon.png ...................... icono de la pestaña del navegador.
-El logo se convirtió de "blanco sobre negro" a "blanco sobre transparente" sin redibujar ni cambiar letras.
-
-Si algún día quieres una foto en lugar del logo: cópiala aquí (cuadrada, mínimo 400x400)
-y escribe su ruta en js/config.js › profile.photo.
