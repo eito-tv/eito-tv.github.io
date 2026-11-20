@@ -3,13 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Seguridad: solo se cargan archivos de esta página; la única conexión externa es la API pública de Discord. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; media-src 'self'; connect-src 'self' https://discord.com; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#05070d">
   <title>E I T O · Gaming y comunidad</title>
   <meta name="description" content="EITO · Página hecha por mí. Mis redes, mi comunidad de Discord, recursos de Left 4 Dead 2 y mis juegos favoritos.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="E I T O · Gaming y comunidad">
   <meta property="og:description" content="Mis redes, mi comunidad de Discord y recursos de Left 4 Dead 2.">
+  <meta property="og:url" content="https://eito-tv.github.io/">
+  <meta property="og:image" content="https://eito-tv.github.io/assets/perfil/eito-logo.png">
+  <meta property="og:image:alt" content="Logo de EITO">
   <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://eito-tv.github.io/">
   <link rel="icon" type="image/png" href="assets/perfil/favicon.png">
   <link rel="apple-touch-icon" href="assets/perfil/favicon.png">
   <link rel="preload" as="image" href="assets/fondos/mc-bosque-luz-pc.webp" media="(min-width: 701px)">
